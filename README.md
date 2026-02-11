@@ -15,13 +15,11 @@
 → Claude cannot modify its own instructions. Suggest changes in chat.
 ```
 
-**That's self-protection.** No other governance framework does this.
-
 ## What Makes This Different?
 
-| Traditional Governance | Prefect Framework |
+| Without Prefect | Prefect Framework |
 |------------------------|-------------------|
-| Claude can edit its own rules | **Claude blocked from editing governance** |
+| Claude can edit its own rules | Claude blocked from editing governance |
 | Static documentation only | Executable hooks + documentation |
 | Manual compliance checks | Automated enforcement on every file write |
 | No protection for .claude/ directory | Hooks protect themselves |
