@@ -1,5 +1,38 @@
 # Security Policy
 
+## Threat Model
+
+⚠️ **Critical Understanding:** Prefect is designed to prevent **unintentional** governance violations by Claude Code, not to defend against a **deliberately adversarial** AI agent. The hooks are security controls for workflow enforcement, **not a sandbox**.
+
+### What Prefect Protects Against ✅
+
+- Accidental edits to governance files (CLAUDE.md, PREFECT-POLICY.md)
+- Workflow drift (Claude skipping phases or ignoring instructions)
+- Project structure violations (temp/ directories, excessive nesting)
+- Unintended modifications to hooks and configuration
+
+### What Prefect Does NOT Protect Against ❌
+
+- **Adversarial AI**: An AI agent actively attempting to bypass hooks
+- **Filesystem access outside Claude Code**: Manual edits or other tools
+- **Compromised hooks**: Maliciously modified hook scripts
+- **Privilege escalation**: Hooks run with the same privileges as Claude Code
+- **Race conditions**: TOCTOU attacks or rapid filesystem changes
+- **Encoded payloads**: Heavily obfuscated or encoded bypass attempts
+
+### Architectural Constraints
+
+- Hooks run in the **same process space** as Claude Code
+- No **cryptographic verification** of governance files
+- **Audit logs are not tamper-proof**
+- **Path validation is heuristic-based**, not exhaustive
+
+For high-security environments, combine Prefect with:
+- File integrity monitoring (AIDE, Tripwire)
+- Immutable file flags (`chattr +i` on Linux)
+- Separate access control (filesystem permissions, SELinux)
+- Code review of all AI-generated code before execution
+
 ## Supported Versions
 
 | Version | Supported          | Status |

@@ -34,6 +34,20 @@
 ✅ **Session Persistence**: Generates handoff documents for context preservation
 ✅ **Workflow Phases**: Guides through PROPOSE → PLAN → BUILD → VERIFY → CLOSE
 
+## Security Model
+
+⚠️ **Important:** Prefect is designed to prevent **unintentional** governance violations by Claude Code, not to defend against a **deliberately adversarial** AI agent. The hooks are security controls for workflow enforcement, **not a sandbox**.
+
+**What this means:**
+- ✅ Prefect prevents accidental edits to governance files
+- ✅ Enforces workflow discipline and project structure
+- ✅ Protects against Claude "drifting" from instructions over time
+- ❌ Not designed to defend against an AI actively trying to bypass controls
+- ❌ Not a security sandbox or isolation mechanism
+- ❌ Hooks run with the same privileges as Claude Code
+
+For high-security environments, combine Prefect with additional controls (file integrity monitoring, immutable flags, SELinux). See [SECURITY.md](SECURITY.md) for details.
+
 ## What It Doesn't Do
 
 ❌ Does not write code for you (workflow guidance only)
