@@ -1,0 +1,49 @@
+name: ShellCheck
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.sh'
+      - '.github/workflows/shellcheck.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.sh'
+
+jobs:
+  shellcheck:
+    name: ShellCheck Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run ShellCheck on hooks
+      run: |
+        echo "Analyzing hook scripts..."
+        shellcheck .claude/hooks/*.sh || true
+
+    - name: Run ShellCheck on test scripts
+      run: |
+        echo "Analyzing test scripts..."
+        shellcheck tests/*.sh || true
+
+    - name: Run ShellCheck on all bash scripts (strict)
+      run: |
+        echo "Running strict ShellCheck on all .sh files..."
+        find . -name "*.sh" -type f -exec shellcheck --severity=warning {} +
+
+    - name: Check for common issues
+      run: |
+        echo "Checking for common bash pitfalls..."
+        # Check for set -euo pipefail in all hooks
+        echo "Verifying error handling in hooks..."
+        for hook in .claude/hooks/*.sh; do
+          if ! head -5 "$hook" | grep -q "set -euo pipefail"; then
+            echo "WARNING: $hook missing 'set -euo pipefail'"
+            exit 1
+          fi
+        done
+        echo "✓ All hooks have proper error handling"

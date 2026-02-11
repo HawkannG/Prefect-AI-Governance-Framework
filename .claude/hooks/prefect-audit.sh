@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail  # FIX V8: Exit on error, undefined var, pipe failure
 # prefect-audit.sh — Automated Prefect Drift Score Calculator
 # Run: bash .claude/hooks/prefect-audit.sh [project-dir]
 # Outputs: Drift score (0-100, lower = healthier) + detailed breakdown
@@ -17,10 +18,6 @@ PROJECT_DIR="${1:-${CLAUDE_PROJECT_DIR:-.}}"
 SCORE=0
 TOTAL_POSSIBLE=0
 DETAILS=""
-
-# ── GLOBAL EXCLUSIONS ─────────────────────────────────
-# Directories that should never be scanned (dependencies, caches, build output)
-PRUNE_DIRS="-path */node_modules/* -o -path */.git/* -o -path */.next/* -o -path */dist/* -o -path */build/* -o -path */venv/* -o -path */.venv/* -o -path */__pycache__/* -o -path */.pytest_cache/* -o -path */.mypy_cache/* -o -path */*.egg-info/*"
 
 add_score() {
   local points=$1
@@ -54,12 +51,11 @@ for f in "$PROJECT_DIR"/*; do
     package.json|package-lock.json|pnpm-lock.yaml|yarn.lock) ;;
     tsconfig.json|tsconfig.*.json|requirements.txt|pyproject.toml) ;;
     setup.py|setup.cfg|Makefile|Dockerfile|docker-compose.*) ;;
-    .gitignore|.env|.env.example|.eslintrc*|.prettierrc*|biome.json) ;;
+    .gitignore|.env.example|.eslintrc*|.prettierrc*|biome.json) ;;
     .folderslintrc|.lslintrc.yml|.editorconfig|.nvmrc|.node-version) ;;
     vite.config.*|next.config.*|tailwind.config.*|postcss.config.*) ;;
     jest.config.*|vitest.config.*|playwright.config.*) ;;
-    *.config.js|*.config.ts|*.config.mjs) ;;
-    lockdown.sh) ;;
+    *.config.js|*.config.ts|*.config.mjs) ;;  # Generic config files
     *)
       ROOT_UNKNOWN=$((ROOT_UNKNOWN + 1))
       echo "   ⚠️  Unauthorized: $fname"
@@ -79,11 +75,11 @@ fi
 # ── DIMENSION 2: Directory Discipline ──────────────────
 echo ""
 echo "2. DIRECTORY DISCIPLINE"
-FORBIDDEN_DIRS=$(find "$PROJECT_DIR" -type d \( -iname "temp" -o -iname "tmp" -o -iname "misc" -o -iname "stuff" -o -iname "old" -o -iname "backup" -o -iname "bak" -o -iname "scratch" -o -iname "junk" -o -iname "archive" \) -not \( $PRUNE_DIRS \) 2>/dev/null)
+FORBIDDEN_DIRS=$(find "$PROJECT_DIR" -type d \( -iname "temp" -o -iname "tmp" -o -iname "misc" -o -iname "stuff" -o -iname "old" -o -iname "backup" -o -iname "bak" -o -iname "scratch" -o -iname "junk" -o -iname "archive" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" -not -path "*/dist/*" -not -path "*/build/*" 2>/dev/null)
 FORBIDDEN_COUNT=$(echo "$FORBIDDEN_DIRS" | grep -c . 2>/dev/null || echo 0)
 [ -z "$FORBIDDEN_DIRS" ] && FORBIDDEN_COUNT=0
 
-DEEP_FILES=$(find "$PROJECT_DIR" -type f -not \( $PRUNE_DIRS \) 2>/dev/null | while read f; do
+DEEP_FILES=$(find "$PROJECT_DIR" -type f -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" -not -path "*/dist/*" 2>/dev/null | while read f; do
   rel="${f#$PROJECT_DIR/}"
   depth=$(echo "$rel" | tr '/' '\n' | wc -l)
   [ "$depth" -gt 6 ] && echo "$rel"
@@ -107,14 +103,14 @@ done
 # ── DIMENSION 3: File Size Compliance ──────────────────
 echo ""
 echo "3. FILE SIZE COMPLIANCE"
-BIG_FILES=$(find "$PROJECT_DIR" \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) -not \( $PRUNE_DIRS \) -not -name "*.config.*" -not -name "*.d.ts" 2>/dev/null | while read f; do
+BIG_FILES=$(find "$PROJECT_DIR" \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/dist/*" -not -path "*/build/*" -not -path "*/.next/*" -not -name "*.config.*" -not -name "*.d.ts" 2>/dev/null | while read f; do
   lines=$(wc -l < "$f")
   [ "$lines" -gt 250 ] && echo "$lines $f"
 done | sort -rn)
 BIG_COUNT=$(echo "$BIG_FILES" | grep -c . 2>/dev/null || echo 0)
 [ -z "$BIG_FILES" ] && BIG_COUNT=0
 
-TOTAL_SOURCE=$(find "$PROJECT_DIR" \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) -not \( $PRUNE_DIRS \) -not -name "*.config.*" -not -name "*.d.ts" 2>/dev/null | wc -l)
+TOTAL_SOURCE=$(find "$PROJECT_DIR" \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/dist/*" -not -path "*/build/*" -not -path "*/.next/*" -not -name "*.config.*" -not -name "*.d.ts" 2>/dev/null | wc -l)
 
 if [ "$BIG_COUNT" -eq 0 ]; then
   add_score 0 13 "All $TOTAL_SOURCE source files within 250-line limit"
@@ -142,11 +138,12 @@ DIR_COUNT=$(echo "$DIRECTIVES" | grep -c . 2>/dev/null || echo 0)
 [ -z "$DIRECTIVES" ] && DIR_COUNT=0
 
 DIR_ISSUES=0
-if [ "$DIR_COUNT" -gt 28 ]; then
+if [ "$DIR_COUNT" -gt 28 ]; then  # max 7 areas × max 4 directives
   DIR_ISSUES=$((DIR_ISSUES + 1))
   echo "   ⚠️  Too many directives: $DIR_COUNT (max 28)"
 fi
 
+# Check format of each directive
 for d in $DIRECTIVES; do
   [ ! -f "$d" ] && continue
   dname=$(basename "$d")
@@ -197,8 +194,7 @@ fi
 echo ""
 echo "6. FEEDBACK BACKLOG"
 if [ -f "$PROJECT_DIR/PREFECT-FEEDBACK.md" ]; then
-  OPEN_FB=$(grep -c "Status: Open" "$PROJECT_DIR/PREFECT-FEEDBACK.md" 2>/dev/null)
-  OPEN_FB=$((OPEN_FB + 0))  # Force integer
+  OPEN_FB=$(grep -c "Status: Open" "$PROJECT_DIR/PREFECT-FEEDBACK.md" 2>/dev/null || echo 0)
   if [ "$OPEN_FB" -eq 0 ]; then
     add_score 0 12 "No open feedback items"
   elif [ "$OPEN_FB" -le 5 ]; then
@@ -215,14 +211,15 @@ fi
 # ── DIMENSION 7: Structural Orphans ───────────────────
 echo ""
 echo "7. STRUCTURAL ORPHANS"
-EMPTY_DIRS=$(find "$PROJECT_DIR" -type d -empty -not \( $PRUNE_DIRS \) 2>/dev/null | wc -l)
+EMPTY_DIRS=$(find "$PROJECT_DIR" -type d -empty -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" 2>/dev/null | wc -l)
 
+# Check for duplicate-purpose directories
 DUPES=0
-HAS_UTILS=$(find "$PROJECT_DIR" -type d -name "utils" -not \( $PRUNE_DIRS \) 2>/dev/null | wc -l)
-HAS_HELPERS=$(find "$PROJECT_DIR" -type d -name "helpers" -not \( $PRUNE_DIRS \) 2>/dev/null | wc -l)
+HAS_UTILS=$(find "$PROJECT_DIR" -type d -name "utils" -not -path "*/node_modules/*" 2>/dev/null | wc -l)
+HAS_HELPERS=$(find "$PROJECT_DIR" -type d -name "helpers" -not -path "*/node_modules/*" 2>/dev/null | wc -l)
 [ "$HAS_UTILS" -gt 0 ] && [ "$HAS_HELPERS" -gt 0 ] && DUPES=$((DUPES + 1)) && echo "   ⚠️  Both utils/ and helpers/ exist — pick one"
 
-HAS_LIB=$(find "$PROJECT_DIR" -type d -name "lib" -not \( $PRUNE_DIRS \) 2>/dev/null | wc -l)
+HAS_LIB=$(find "$PROJECT_DIR" -type d -name "lib" -not -path "*/node_modules/*" 2>/dev/null | wc -l)
 [ "$HAS_UTILS" -gt 0 ] && [ "$HAS_LIB" -gt 0 ] && DUPES=$((DUPES + 1)) && echo "   ⚠️  Both utils/ and lib/ exist — consolidate"
 
 ORPHAN_ISSUES=$((EMPTY_DIRS + DUPES))
@@ -239,13 +236,19 @@ echo ""
 echo "8. DOCUMENTATION CURRENCY"
 STALE=0
 NOW=$(date +%s)
-STALE_DAYS=14
+STALE_DAYS=14  # 2 weeks
 
 for gf in "CLAUDE.md" "README.md"; do
   if [ -f "$PROJECT_DIR/$gf" ]; then
-    LAST_MOD=""
-    if command -v git &>/dev/null && git -C "$PROJECT_DIR" rev-parse 2>/dev/null; then
-      LAST_MOD=$(git -C "$PROJECT_DIR" log -1 --format="%ct" -- "$gf" 2>/dev/null)
+    # Use git log if available, otherwise file mtime (FIX V6: Sanitize PROJECT_DIR)
+    if command -v git &>/dev/null; then
+      # Verify PROJECT_DIR is a safe path
+      SAFE_DIR=$(realpath -m "$PROJECT_DIR" 2>/dev/null || echo "")
+      if [ -n "$SAFE_DIR" ] && [ -d "$SAFE_DIR" ]; then
+        if git -C "$SAFE_DIR" rev-parse 2>/dev/null; then
+          LAST_MOD=$(git -C "$SAFE_DIR" log -1 --format="%ct" -- "$gf" 2>/dev/null || echo "")
+        fi
+      fi
     fi
     if [ -z "$LAST_MOD" ]; then
       LAST_MOD=$(stat -c %Y "$PROJECT_DIR/$gf" 2>/dev/null || stat -f %m "$PROJECT_DIR/$gf" 2>/dev/null)
@@ -272,6 +275,7 @@ fi
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+# Normalize to 0-100
 if [ "$TOTAL_POSSIBLE" -gt 0 ]; then
   DRIFT_SCORE=$((SCORE * 100 / TOTAL_POSSIBLE))
 else
@@ -280,24 +284,30 @@ fi
 
 if [ "$DRIFT_SCORE" -le 10 ]; then
   GRADE="🟢 EXCELLENT"
+  EMOJI="✨"
 elif [ "$DRIFT_SCORE" -le 25 ]; then
   GRADE="🟡 GOOD"
+  EMOJI="👍"
 elif [ "$DRIFT_SCORE" -le 50 ]; then
   GRADE="🟠 ATTENTION NEEDED"
+  EMOJI="⚠️"
 elif [ "$DRIFT_SCORE" -le 75 ]; then
   GRADE="🔴 SIGNIFICANT DRIFT"
+  EMOJI="🚨"
 else
   GRADE="⛔ GOVERNANCE CRISIS"
+  EMOJI="🆘"
 fi
 
 echo ""
-echo "  DRIFT SCORE: $DRIFT_SCORE / 100  ($GRADE)"
+echo "  $EMOJI  DRIFT SCORE: $DRIFT_SCORE / 100  ($GRADE)"
 echo ""
 echo "  Breakdown:"
 echo -e "$DETAILS"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+# Escalation recommendation
 if [ "$DRIFT_SCORE" -le 10 ]; then
   echo "  → No action needed. Keep shipping."
 elif [ "$DRIFT_SCORE" -le 25 ]; then

@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail  # FIX V8: Exit on error, undefined var, pipe failure
 # prefect-post-check.sh — PostToolUse hook for Prefect governance
 # Runs AFTER successful file writes. Warns about drift, does not block.
 # Output goes to stderr as feedback to Claude.
