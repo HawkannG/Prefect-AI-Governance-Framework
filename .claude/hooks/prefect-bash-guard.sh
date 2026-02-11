@@ -44,7 +44,7 @@ fi
 # ── RULE 2: BLOCK HOOK SELF-MODIFICATION ───────────────
 # Extra paranoid check — any command referencing hook scripts with write intent
 if echo "$CMD" | grep -qE "prefect-(guard|post-check|session-end|audit|bash-guard)\.sh" ; then
-  if echo "$CMD" | grep -qE "(>|>>|tee|sed\s+-i|mv\s|cp\s|rm\s|chmod|chown|nano|vim|vi\s|edit)" ; then
+  if echo "$CMD" | grep -qE "(>|>>|tee|sed\s+-i|mv\s|cp\s|rm\s|chmod|chown|nano|vim|vi\s|emacs|edit)" ; then
     log_audit "BLOCK" "Bash attempt to modify hook: $CMD"
     echo "🛑 PREFECT BLOCK: Cannot modify hook scripts via bash." >&2
     exit 1
@@ -61,7 +61,9 @@ if echo "$CMD" | grep -qE "settings\.json" ; then
 fi
 
 # ── RULE 4: BLOCK FORBIDDEN DIRECTORIES VIA BASH ──────
-FORBIDDEN_DIRS="\/temp\/|\/tmp\/|\/misc\/|\/stuff\/|\/old\/|\/backup\/|\/bak\/|\/scratch\/|\/junk\/|\/archive\/"
+# Match forbidden directory names with or without slashes
+# Patterns: mkdir temp, mkdir -p tmp/, touch temp/file.txt, echo > misc/file
+FORBIDDEN_DIRS="\btemp\b|\btmp\b|\bmisc\b|\bstuff\b|\bold\b|\bbackup\b|\bbak\b|\bscratch\b|\bjunk\b|\barchive\b"
 if echo "$CMD" | grep -qE "(mkdir|touch|cat\s|echo\s|tee|cp\s|mv\s)" ; then
   if echo "$CMD" | grep -qiE "$FORBIDDEN_DIRS"; then
     log_audit "BLOCK" "Bash create in forbidden directory: $CMD"

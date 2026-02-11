@@ -6,6 +6,13 @@ set -euo pipefail  # FIX V8: Exit on error, undefined var, pipe failure
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
 
+# Verify PROJECT_DIR exists (handle gracefully - session-end is informational)
+if [ ! -d "$PROJECT_DIR" ]; then
+  echo "⚠️  PROJECT_DIR not found: $PROJECT_DIR" >&2
+  echo "   Session-end audit skipped." >&2
+  exit 0
+fi
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
 echo "📋 PREFECT SESSION-END AUDIT" >&2
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2

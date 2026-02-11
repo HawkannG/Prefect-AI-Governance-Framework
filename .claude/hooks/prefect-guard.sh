@@ -28,6 +28,18 @@ fi
 
 # Resolve project directory
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+CANONICAL_PROJECT=$(realpath -m "$PROJECT_DIR" 2>/dev/null)
+
+# Make relative paths absolute relative to PROJECT_DIR
+case "$FILE_PATH" in
+  /*)
+    # Already absolute
+    ;;
+  *)
+    # Relative path - make it relative to PROJECT_DIR
+    FILE_PATH="$PROJECT_DIR/$FILE_PATH"
+    ;;
+esac
 
 # ── FIX V1: SYMLINK ATTACK PROTECTION ─────────────────
 # Resolve symlinks to real path before any checks
@@ -49,7 +61,6 @@ if [ -z "$CANONICAL_PATH" ]; then
 fi
 
 # Verify canonical path is inside PROJECT_DIR
-CANONICAL_PROJECT=$(realpath -m "$PROJECT_DIR" 2>/dev/null)
 case "$CANONICAL_PATH" in
   "$CANONICAL_PROJECT"*)
     # Path is inside project, OK
@@ -61,8 +72,11 @@ case "$CANONICAL_PATH" in
     ;;
 esac
 
-# Resolve paths for checks
-REL_PATH="${FILE_PATH#$PROJECT_DIR/}"
+# Use canonical path for all checks to prevent traversal bypasses
+FILE_PATH="$CANONICAL_PATH"
+
+# Resolve paths for checks (use canonical path, not original)
+REL_PATH="${CANONICAL_PATH#$CANONICAL_PROJECT/}"
 FILENAME=$(basename "$REL_PATH")
 DIRNAME=$(dirname "$REL_PATH")
 
@@ -129,18 +143,19 @@ if [ "$DIRNAME" = "." ] || [ "$DIRNAME" = "$PROJECT_DIR" ]; then
     ".folderslintrc" ".lslintrc.yml"
   )
 
-  # Allow D-*.md directive files
-  if [[ "$FILENAME" =~ ^D-[A-Z]+-[A-Z]+\.md$ ]]; then
-    exit 0
-  fi
-
+  # Check if it's a directive file (allowed at root, but must pass size check in Rule 4)
   ALLOWED=false
-  for f in "${ALLOWED_ROOT[@]}"; do
-    if [ "$FILENAME" = "$f" ]; then
-      ALLOWED=true
-      break
-    fi
-  done
+  if [[ "$FILENAME" =~ ^D-[A-Z]+-[A-Z]+\.md$ ]]; then
+    ALLOWED=true
+  else
+    # Check against allowed root files list
+    for f in "${ALLOWED_ROOT[@]}"; do
+      if [ "$FILENAME" = "$f" ]; then
+        ALLOWED=true
+        break
+      fi
+    done
+  fi
 
   if [ "$ALLOWED" = false ]; then
     log_audit "BLOCK" "Unauthorized root file: $FILENAME"

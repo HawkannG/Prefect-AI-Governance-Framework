@@ -534,7 +534,7 @@ fi
 
 # Test 9.2: Verify log entries are properly formatted
 if [ -f "$PROJECT_DIR/.claude/audit.log" ]; then
-  if tail -1 "$PROJECT_DIR/.claude/audit.log" | grep -qE '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z \['; then
+  if tail -1 "$PROJECT_DIR/.claude/audit.log" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z \['; then
     test_pass "V9.2: Audit log entries have proper timestamp format"
   else
     test_fail "V9.2: Log timestamp format" "ISO 8601 timestamp" "malformed"

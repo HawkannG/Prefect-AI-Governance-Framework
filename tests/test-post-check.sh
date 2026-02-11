@@ -100,7 +100,7 @@ else
 fi
 
 # Test 6: Warning mentions file size
-if echo "$output" | grep -qE "\d+ lines"; then
+if echo "$output" | grep -qE "[0-9]+ lines"; then
   test_pass "P6: Warning includes line count"
 else
   test_fail "P6: Warning doesn't include line count"

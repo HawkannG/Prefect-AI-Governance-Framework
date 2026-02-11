@@ -15,6 +15,13 @@ set -euo pipefail  # FIX V8: Exit on error, undefined var, pipe failure
 #   8. Documentation currency — staleness of key governance files
 
 PROJECT_DIR="${1:-${CLAUDE_PROJECT_DIR:-.}}"
+
+# Verify PROJECT_DIR exists and is accessible
+if [ ! -d "$PROJECT_DIR" ]; then
+  echo "❌ ERROR: Project directory '$PROJECT_DIR' does not exist" >&2
+  exit 2
+fi
+
 SCORE=0
 TOTAL_POSSIBLE=0
 DETAILS=""
@@ -32,9 +39,12 @@ add_score() {
   fi
 }
 
+# Get absolute project path safely
+PROJECT_NAME=$(basename "$(cd "$PROJECT_DIR" && pwd)" 2>/dev/null || basename "$PROJECT_DIR")
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📊 PREFECT GOVERNANCE AUDIT"
-echo "   Project: $(basename "$(cd "$PROJECT_DIR" && pwd)")"
+echo "   Project: $PROJECT_NAME"
 echo "   Date:    $(date '+%Y-%m-%d %H:%M')"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
@@ -75,17 +85,23 @@ fi
 # ── DIMENSION 2: Directory Discipline ──────────────────
 echo ""
 echo "2. DIRECTORY DISCIPLINE"
-FORBIDDEN_DIRS=$(find "$PROJECT_DIR" -type d \( -iname "temp" -o -iname "tmp" -o -iname "misc" -o -iname "stuff" -o -iname "old" -o -iname "backup" -o -iname "bak" -o -iname "scratch" -o -iname "junk" -o -iname "archive" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" -not -path "*/dist/*" -not -path "*/build/*" 2>/dev/null)
-FORBIDDEN_COUNT=$(echo "$FORBIDDEN_DIRS" | grep -c . 2>/dev/null || echo 0)
-[ -z "$FORBIDDEN_DIRS" ] && FORBIDDEN_COUNT=0
+FORBIDDEN_DIRS=$(find "$PROJECT_DIR" -type d \( -iname "temp" -o -iname "tmp" -o -iname "misc" -o -iname "stuff" -o -iname "old" -o -iname "backup" -o -iname "bak" -o -iname "scratch" -o -iname "junk" -o -iname "archive" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" -not -path "*/dist/*" -not -path "*/build/*" 2>/dev/null || true)
+if [ -z "$FORBIDDEN_DIRS" ]; then
+  FORBIDDEN_COUNT=0
+else
+  FORBIDDEN_COUNT=$(echo "$FORBIDDEN_DIRS" | grep -c . 2>/dev/null || echo 0)
+fi
 
 DEEP_FILES=$(find "$PROJECT_DIR" -type f -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" -not -path "*/dist/*" 2>/dev/null | while read f; do
   rel="${f#$PROJECT_DIR/}"
   depth=$(echo "$rel" | tr '/' '\n' | wc -l)
   [ "$depth" -gt 6 ] && echo "$rel"
-done)
-DEEP_COUNT=$(echo "$DEEP_FILES" | grep -c . 2>/dev/null || echo 0)
-[ -z "$DEEP_FILES" ] && DEEP_COUNT=0
+done || true)
+if [ -z "$DEEP_FILES" ]; then
+  DEEP_COUNT=0
+else
+  DEEP_COUNT=$(echo "$DEEP_FILES" | grep -c . 2>/dev/null || echo 0)
+fi
 
 DIR_ISSUES=$((FORBIDDEN_COUNT + DEEP_COUNT))
 if [ "$DIR_ISSUES" -eq 0 ]; then
@@ -106,9 +122,12 @@ echo "3. FILE SIZE COMPLIANCE"
 BIG_FILES=$(find "$PROJECT_DIR" \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/dist/*" -not -path "*/build/*" -not -path "*/.next/*" -not -name "*.config.*" -not -name "*.d.ts" 2>/dev/null | while read f; do
   lines=$(wc -l < "$f")
   [ "$lines" -gt 250 ] && echo "$lines $f"
-done | sort -rn)
-BIG_COUNT=$(echo "$BIG_FILES" | grep -c . 2>/dev/null || echo 0)
-[ -z "$BIG_FILES" ] && BIG_COUNT=0
+done | sort -rn || true)
+if [ -z "$BIG_FILES" ]; then
+  BIG_COUNT=0
+else
+  BIG_COUNT=$(echo "$BIG_FILES" | grep -c . 2>/dev/null || echo 0)
+fi
 
 TOTAL_SOURCE=$(find "$PROJECT_DIR" \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/dist/*" -not -path "*/build/*" -not -path "*/.next/*" -not -name "*.config.*" -not -name "*.d.ts" 2>/dev/null | wc -l)
 
@@ -133,9 +152,12 @@ fi
 # ── DIMENSION 4: Directive Health ──────────────────────
 echo ""
 echo "4. DIRECTIVE HEALTH"
-DIRECTIVES=$(find "$PROJECT_DIR" -maxdepth 1 -name "D-*.md" 2>/dev/null)
-DIR_COUNT=$(echo "$DIRECTIVES" | grep -c . 2>/dev/null || echo 0)
-[ -z "$DIRECTIVES" ] && DIR_COUNT=0
+DIRECTIVES=$(find "$PROJECT_DIR" -maxdepth 1 -name "D-*.md" 2>/dev/null || true)
+if [ -z "$DIRECTIVES" ]; then
+  DIR_COUNT=0
+else
+  DIR_COUNT=$(echo "$DIRECTIVES" | grep -c . 2>/dev/null || echo 0)
+fi
 
 DIR_ISSUES=0
 if [ "$DIR_COUNT" -gt 28 ]; then  # max 7 areas × max 4 directives
