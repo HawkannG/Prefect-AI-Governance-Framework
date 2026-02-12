@@ -111,9 +111,9 @@ This order is proven. Do not deviate.
 - These are product docs, NOT governance. Read for context when implementing features.
 
 ## Session Protocol
-**Start:** Read this file → Read `docs/SESSION-LOG.md` (if exists) → State current phase + today's task
+**Start:** Read this file → Read `docs/SESSION-LOG.md` → State current phase + today's task
 **Mid-session:** Every 5 file changes, verify no drift
-**End:** Update changelog → Write handoff → Run `bash .claude/hooks/warden-audit.sh`
+**End:** Update docs/SESSION-LOG.md → Run `bash .claude/hooks/warden-audit.sh` → Add drift score to log
 **Context recovery:** "warden check" → re-read this file + directives, confirm constraints
 
 ## Forbidden Patterns

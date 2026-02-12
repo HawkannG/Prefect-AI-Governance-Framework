@@ -43,9 +43,31 @@ if [ ${#ROOT_UNKNOWN[@]} -gt 0 ]; then
   echo "⚠️  Unregistered root files: ${ROOT_UNKNOWN[*]}" >&2
 fi
 
-# Check: Does WARDEN-FEEDBACK.md exist?
-if [ ! -f "$PROJECT_DIR/WARDEN-FEEDBACK.md" ]; then
-  echo "📝 No WARDEN-FEEDBACK.md found (create if you have governance observations)." >&2
+# Check: Does SESSION-LOG.md exist and was it updated this session?
+if [ ! -f "$PROJECT_DIR/docs/SESSION-LOG.md" ]; then
+  echo "⚠️  No docs/SESSION-LOG.md found (required for session handoffs)." >&2
+  ISSUES=$((ISSUES + 1))
+else
+  # Check if SESSION-LOG.md was modified in the last 2 hours (7200 seconds)
+  if [ "$(uname)" = "Darwin" ]; then
+    # macOS
+    LAST_MODIFIED=$(stat -f %m "$PROJECT_DIR/docs/SESSION-LOG.md" 2>/dev/null || echo 0)
+  else
+    # Linux
+    LAST_MODIFIED=$(stat -c %Y "$PROJECT_DIR/docs/SESSION-LOG.md" 2>/dev/null || echo 0)
+  fi
+  CURRENT_TIME=$(date +%s)
+  TIME_DIFF=$((CURRENT_TIME - LAST_MODIFIED))
+
+  if [ "$TIME_DIFF" -gt 7200 ]; then
+    echo "⚠️  docs/SESSION-LOG.md not updated this session (last modified $(($TIME_DIFF / 3600))h ago)." >&2
+    echo "   Remember to add handoff note in CLOSE phase." >&2
+  fi
+fi
+
+# Check: Does .claude/rules/feedback.md exist?
+if [ ! -f "$PROJECT_DIR/.claude/rules/feedback.md" ]; then
+  echo "📝 No .claude/rules/feedback.md found (create if you have governance observations)." >&2
 fi
 
 # Check: How many directives exist?

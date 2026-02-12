@@ -191,14 +191,19 @@ Or: "Fix X" → back to BUILD. "Wrong thing" → back to PROPOSE.
 **Who leads:** Claude
 
 ### Claude MUST:
-1. **Update changelog** in relevant governance file:
-   ```
-   ## [Session YYYY-MM-DD] — Completed: [what], Files: [count], Decisions: [any]
-   ```
+1. **Update docs/SESSION-LOG.md** with handoff note at the top:
+   ```markdown
+   ## [YYYY-MM-DD HH:MM] Session End
 
-2. **Write handoff note:**
-   ```
-   **Done:** [summary]  |  **Next:** [suggested]  |  **Watch out:** [issues]  |  **Drift:** [score]
+   **Phase:** [Current phase]
+   **Completed:** [List of completed tasks]
+   **In Progress:** [Tasks still ongoing with blockers]
+   **Next Session:** [What to do first]
+   **Decisions Made:** [Key decisions and reasoning]
+   **Issues/Blockers:** [Any problems encountered]
+   **Drift Score:** X/100 (from warden-audit.sh)
+   **Files Changed:** N files
+   **Tests:** Pass | Fail | Not Run
    ```
 
 3. **UAT documentation in commits and PRs:**
