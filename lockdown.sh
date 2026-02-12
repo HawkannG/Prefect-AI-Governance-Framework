@@ -5,8 +5,11 @@
 set -euo pipefail
 
 GOVERNANCE_FILES=(
-  "CLAUDE.md"
-  "WARDEN-POLICY.md"
+  ".claude/CLAUDE.md"
+  ".claude/rules/policy.md"
+  ".claude/rules/workflow.md"
+  ".claude/rules/architecture.md"
+  ".claude/rules/feedback.md"
   ".claude/hooks/warden-guard.sh"
   ".claude/hooks/warden-bash-guard.sh"
   ".claude/hooks/warden-post-check.sh"

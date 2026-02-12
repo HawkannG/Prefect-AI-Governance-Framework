@@ -58,7 +58,7 @@ if [[ "$FILENAME" =~ ^D-[A-Z]+-[A-Z]+\.md$ ]]; then
 
     if [ -n "$MISSING" ]; then
       echo "⚠️  WARDEN DRIFT: Directive '$FILENAME' missing required headers:$MISSING" >&2
-      echo "   → See WARDEN-POLICY.md §4.2 for required directive format." >&2
+      echo "   → See .claude/rules/policy.md §4.2 for required directive format." >&2
     fi
   fi
 fi

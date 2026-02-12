@@ -6,14 +6,15 @@
 - **Stack:** [e.g., Next.js 14, FastAPI, PostgreSQL, S3]
 
 ## Reference Documents
-@D-WORK-WORKFLOW.md
-@D-ARCH-STRUCTURE.md
-@docs/PRODUCT-SPEC.mdA
+@rules/workflow.md
+@rules/architecture.md
+@rules/policy.md
+@docs/PRODUCT-SPEC.md
 @docs/AI-UAT-CHECKLIST.md
 
 ## Absolute Rules
-- NEVER edit WARDEN-POLICY.md — suggest changes in chat, human edits
-- NEVER edit CLAUDE.md — suggest changes in chat, human edits
+- NEVER edit .claude/rules/*.md — suggest changes in chat, human edits
+- NEVER edit .claude/CLAUDE.md — suggest changes in chat, human edits
 - NEVER edit anything in .claude/hooks/ — suggest changes in chat, human edits
 - NEVER edit .claude/settings.json — suggest changes in chat, human edits
 - NEVER use bash commands to write/modify/delete protected files (the above four rules apply to ALL tools, not just Write/Edit)
@@ -22,7 +23,7 @@
 - NEVER exceed 5 directory levels from root
 - NEVER add dependencies without documenting in DECISIONS section of ARCHITECTURE.md
 - NEVER modify access control or auth without explicit human approval
-- NEVER skip the workflow phases — read D-WORK-WORKFLOW.md
+- NEVER skip the workflow phases — read rules/workflow.md
 - NEVER implement a user-facing feature without acceptance criteria defined first
 - NEVER assume requirements not stated in test cases — ask, don't guess
 - NEVER merge code with failing tests, even if unit tests pass
@@ -62,7 +63,7 @@ When designing data models, flag any personal data fields and document the legal
 - Input sanitisation on all user-facing inputs
 
 ## Development Workflow
-- Read D-WORK-WORKFLOW.md before starting ANY task
+- Read rules/workflow.md before starting ANY task
 - Every change follows: **PROPOSE → PLAN → BUILD → VERIFY → CLOSE**
 - PROPOSE phase: ask one question at a time, wait for answer, then next question
 - PLAN phase: present detailed options with tradeoffs before execution — human chooses
@@ -98,11 +99,11 @@ This order is proven. Do not deviate.
 ## Governance Files — Read Before Acting
 | Before you... | Read this first |
 |---|---|
-| Start any task | D-WORK-WORKFLOW.md |
-| Create or move files | D-ARCH-STRUCTURE.md |
+| Start any task | rules/workflow.md |
+| Create or move files | rules/architecture.md |
 | Implement a feature | docs/PRODUCT-SPEC.md (understand what we're building) |
 | Write test cases | docs/AI-UAT-CHECKLIST.md (UAT format and conventions) |
-| Wonder "where does this go?" | DIRECTORY-POLICY section in D-ARCH-STRUCTURE.md |
+| Wonder "where does this go?" | DIRECTORY-POLICY section in rules/architecture.md |
 
 ## Product Reference
 - **docs/PRODUCT-SPEC.md** — What this project does (features, workflows, roadmap)
@@ -120,15 +121,15 @@ This order is proven. Do not deviate.
 - Do not put source files at directory root — always in a subdirectory
 - Do not write "we'll add tests later" — tests ship with the feature
 - Do not install packages without plan approval
-- Do not create new .md governance files at root — per WARDEN-POLICY.md §1.2
-- Do not implement features beyond what test cases describe — no "helpful" extras
+- Do not create new .md governance files — per rules/policy.md §1.2
+- Do not implement features beyond test case descriptions — no "helpful" extras
 - Do not edit files owned by another parallel Claude instance — check your plan
 
 ## Current Constraints
 - Solo developer — keep governance proportional. One-line additions to existing files over new directives.
-- No directives beyond D-ARCH-STRUCTURE and D-WORK-WORKFLOW until real code demands them
-- Create D-DATA-MODELS.md only when building first data model
-- Create D-ACCESS-CONTROL.md only when implementing auth
+- No rules beyond architecture.md and workflow.md until real code demands them
+- Create rules/data-models.md only when building first data model
+- Create rules/access-control.md only when implementing auth
 - No GitHub CI workflows until there's code worth scanning
 
 ## Parallel Instances

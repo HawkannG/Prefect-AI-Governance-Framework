@@ -37,7 +37,7 @@ fi
 
 # ── RULE 2: PROTECT GOVERNANCE FILES FROM BASH WRITES ──
 # Block any bash command that writes to protected files
-PROTECTED_FILES="WARDEN-POLICY\.md|CLAUDE\.md|lockdown\.sh|\.claude/hooks/|\.claude/settings\.json"
+PROTECTED_FILES="\.claude/CLAUDE\.md|\.claude/rules/|lockdown\.sh|\.claude/hooks/|\.claude/settings\.json"
 
 # Check for write operations targeting protected files
 # Catches: echo/cat/tee writing to file, sed -i editing, mv/cp overwriting, rm deleting
@@ -45,7 +45,7 @@ if echo "$CMD" | grep -qE "(>|>>|tee|sed\s+-i|mv\s|cp\s|rm\s|chmod|chown)" ; the
   if echo "$CMD" | grep -qE "$PROTECTED_FILES"; then
     log_audit "BLOCK" "Bash write to protected file: $CMD"
     echo "🛑 WARDEN BLOCK: Bash command targets a protected governance file." >&2
-    echo "   → Cannot write to WARDEN-POLICY.md, CLAUDE.md, lockdown.sh, .claude/hooks/, or .claude/settings.json via bash." >&2
+    echo "   → Cannot write to .claude/CLAUDE.md, .claude/rules/, lockdown.sh, .claude/hooks/, or .claude/settings.json via bash." >&2
     echo "   → Suggest changes in chat. The human will make the edit." >&2
     exit 1
   fi

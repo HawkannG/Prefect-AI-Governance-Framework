@@ -1,10 +1,15 @@
-# D-ARCH-STRUCTURE — Project Directory Structure Template
+---
+paths:
+  - "**/*"
+---
+
+# Project Directory Structure Template
 
 > **Policy Area:** ARCH — Architecture
 > **Version:** 2.0
 > **Last Reviewed:** 2026-02-11
 > **Owner:** Human+AI
-> **References:** D-WORK-WORKFLOW.md
+> **References:** workflow.md
 > **Enforcement:** Active (CLAUDE.md rule) + Hard (hooks)
 
 ---

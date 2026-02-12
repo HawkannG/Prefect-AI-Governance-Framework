@@ -25,9 +25,8 @@ for f in "$PROJECT_DIR"/*; do
   [ ! -f "$f" ] && continue
   fname=$(basename "$f")
   case "$fname" in
-    WARDEN-POLICY.md|CLAUDE.md|WARDEN-FEEDBACK.md|README.md|SECURITY.md|LICENSE*) ;;
+    README.md|SECURITY.md|LICENSE*) ;;
     lockdown.sh) ;;
-    D-*.md) ;;
     package.json|package-lock.json|tsconfig.json|requirements.txt|pyproject.toml) ;;
     setup.py|setup.cfg|Makefile|Dockerfile|docker-compose.*) ;;
     .gitignore|.env.example|.eslintrc*|.prettierrc*|.folderslintrc|.lslintrc.yml) ;;

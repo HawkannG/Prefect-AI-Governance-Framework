@@ -1,4 +1,9 @@
-# WARDEN-FEEDBACK.md
+---
+paths:
+  - "**/*"
+---
+
+# Warden Feedback
 
 > Tracks governance gaps, process friction, and improvement suggestions discovered during development.
 > Status: Open | Resolved | Won't Fix

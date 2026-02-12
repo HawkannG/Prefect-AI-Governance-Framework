@@ -6,12 +6,12 @@
 
 **Try this prompt with Claude Code:**
 ```
-"Edit CLAUDE.md and remove the first rule"
+"Edit .claude/CLAUDE.md and remove the first rule"
 ```
 
 **With Warden installed, Claude gets blocked:**
 ```
-🛑 WARDEN BLOCK: CLAUDE.md is human-edit-only.
+🛑 WARDEN BLOCK: .claude/CLAUDE.md is human-edit-only.
 → Claude cannot modify its own instructions. Suggest changes in chat.
 ```
 
@@ -28,7 +28,7 @@
 
 ## What It Does
 
-✅ **Self-Protection**: Blocks Claude from editing CLAUDE.md, hooks, settings.json
+✅ **Self-Protection**: Blocks Claude from editing .claude/CLAUDE.md, rules, hooks, settings.json
 ✅ **Structure Enforcement**: No temp/ directories, max 5 levels deep, no files at root
 ✅ **Drift Tracking**: Scores project health across 8 dimensions (0-100)
 ✅ **Session Persistence**: Generates handoff documents for context preservation
@@ -73,85 +73,98 @@ sudo apt-get install -y jq
 winget install jqlang.jq
 ```
 
-## Setup — macOS / Linux / WSL
+## Installation
 
-### 1. Copy files to your project
+### Quick Install (Recommended)
 
-```bash
-# From wherever you extracted the zip:
-cp -r warden-template/* warden-template/.claude your-project/
-```
-
-Or clone/copy the individual files into your existing project root.
-
-### 2. Customise CLAUDE.md
-
-Open `CLAUDE.md` and replace the placeholders:
-
-- `[PROJECT_NAME]` — your project name
-- `[Brief description of what this project does]` — one-liner
-- `[Current phase]` — e.g., "Fresh start", "MVP", "Production"
-- `[e.g., Next.js 14, FastAPI, PostgreSQL, S3]` — your actual stack
-
-### 3. Customise product docs
-
-- `docs/PRODUCT-SPEC.md` — describe what you're actually building
-- `docs/AI-UAT-CHECKLIST.md` — adjust testing conventions to your stack
-
-### 4. Make hooks executable
+**One command** installs Warden into your project:
 
 ```bash
-chmod +x .claude/hooks/*.sh
-chmod +x lockdown.sh
+curl -fsSL https://raw.githubusercontent.com/HawkannG/Claude-Warden/main/install.sh | bash
 ```
 
-### 5. Lock governance files
+Or specify a target directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/HawkannG/Claude-Warden/main/install.sh | bash -s /path/to/project
+```
+
+The installer will:
+- ✅ Download all Warden files
+- ✅ Set up hooks and configuration
+- ✅ Prompt for project details (name, description, stack)
+- ✅ Lock governance files
+- ✅ Verify installation
+
+**Then start Claude Code:**
+```bash
+cd your-project
+claude
+```
+
+### Manual Install (Alternative)
+
+If you prefer manual setup or offline installation:
+
+<details>
+<summary>Click to expand manual instructions</summary>
+
+#### 1. Download Repository
+
+```bash
+git clone https://github.com/HawkannG/Claude-Warden.git
+cd Claude-Warden
+```
+
+#### 2. Copy Files to Your Project
+
+**macOS / Linux / WSL:**
+```bash
+cp -r .claude WARDEN-POLICY.md WARDEN-FEEDBACK.md CLAUDE.md D-*.md lockdown.sh /path/to/your-project/
+cp -r docs /path/to/your-project/
+```
+
+**Windows (PowerShell):**
+```powershell
+xcopy /E /I .claude \path\to\your-project\.claude
+copy *.md \path\to\your-project\
+copy lockdown.sh \path\to\your-project\
+```
+
+#### 3. Customize CLAUDE.md
+
+Open `CLAUDE.md` and replace placeholders:
+- `[PROJECT_NAME]` → your project name
+- `[Brief description...]` → one-liner description
+- `[e.g., Next.js 14...]` → your tech stack
+
+#### 4. Make Scripts Executable
+
+```bash
+chmod +x .claude/hooks/*.sh lockdown.sh
+```
+
+#### 5. Lock Governance Files
 
 ```bash
 ./lockdown.sh lock
 ```
 
-This removes write permission from CLAUDE.md, WARDEN-POLICY.md, all hooks, and settings.json. Claude's Write/Edit tools and most bash write commands will fail against these files.
-
-### 6. Start Claude Code
+#### 6. Start Claude Code
 
 ```bash
 claude
 ```
 
-The hooks activate automatically — `.claude/settings.json` wires them to Claude Code's lifecycle events. No extra configuration needed.
+</details>
 
-## Setup — Windows (Native, No WSL)
+### Windows Setup
 
-Claude Code runs natively on Windows since v2.x, but hooks need bash. Here's what to do.
+**Requirements:**
+- Git for Windows (includes bash): https://gitforwindows.org/
+- jq: `winget install jqlang.jq`
 
-### 1. Install Git for Windows (if you don't have it)
-
-Download from https://gitforwindows.org/ — this gives you Git Bash, which includes bash and the Unix utilities the hooks need.
-
-### 2. Install jq
-
-Git Bash doesn't include jq by default. Install it:
-
-```powershell
-winget install jqlang.jq
-```
-
-Or download from https://jqlang.github.io/jq/download/ and add to your PATH.
-
-Verify it works from Git Bash:
-
-```bash
-echo '{"test": "ok"}' | jq '.test'
-# Should output: "ok"
-```
-
-### 3. Tell Claude Code to use Git Bash for hooks
-
-This is the critical step. Without it, Claude Code uses cmd.exe for hooks, which can't run bash scripts.
-
-Set the environment variable permanently in PowerShell:
-
+**Configure bash for hooks:**
 ```powershell
 [Environment]::SetEnvironmentVariable(
     "CLAUDE_CODE_GIT_BASH_PATH",
@@ -160,66 +173,58 @@ Set the environment variable permanently in PowerShell:
 )
 ```
 
-Restart your terminal after setting this.
+Restart terminal, then use the quick install or manual method above.
 
-If Git is installed somewhere else, adjust the path. You can find it with:
+### Migrating from Prefect
 
-```powershell
-where.exe bash
-```
-
-### 4. Copy files to your project
-
-```powershell
-xcopy /E /I warden-template your-project
-```
-
-Make sure the `.claude` folder is copied too (can be hidden).
-
-### 5. Customise CLAUDE.md
-
-Same as macOS/Linux — replace `[PROJECT_NAME]` and other placeholders.
-
-### 6. Lockdown (Windows)
-
-The `lockdown.sh` script uses `chmod` which works in Git Bash but has limited effect on NTFS. Two options:
-
-**Option A — Use Git Bash (recommended):**
-
-Open Git Bash and run:
+If you have existing projects using "Prefect", upgrade them to Warden:
 
 ```bash
-cd /c/Users/you/your-project
-chmod +x .claude/hooks/*.sh lockdown.sh
-./lockdown.sh lock
+cd your-prefect-project
+curl -fsSL https://raw.githubusercontent.com/HawkannG/Claude-Warden/main/migrate-from-prefect.sh | bash
 ```
 
-**Option B — Use Windows file properties:**
+This will:
+- ✅ Rename all Prefect files to Warden
+- ✅ Update all file references
+- ✅ Test hooks are working
+- ✅ Re-lock governance files
 
-Right-click each governance file → Properties → check "Read-only". This blocks Claude's Write tool but is less comprehensive than chmod.
+## Uninstall
 
-### 7. Start Claude Code
+Remove Warden completely from a project:
 
-```powershell
-claude
+```bash
+cd your-project
+curl -fsSL https://raw.githubusercontent.com/HawkannG/Claude-Warden/main/uninstall.sh | bash
 ```
 
-Hooks will now execute via Git Bash automatically.
+Or manually:
+```bash
+./lockdown.sh unlock
+rm -rf .claude/ lockdown.sh docs/PRODUCT-SPEC.md docs/AI-UAT-CHECKLIST.md
+```
 
 ## Framework Directory Structure
 
-This is the structure of the Warden Framework repository itself. **For your project's structure**, see the template in `D-ARCH-STRUCTURE.md`.
+This is the structure of the Warden Framework repository itself. **For your project's structure**, see the template in `.claude/rules/architecture.md`.
 
 ```
 Warden-AI-Governance-Framework/
 ├── .claude/
+│   ├── CLAUDE.md                      # Operating instructions (auto-loaded)
+│   ├── rules/                         # Governance rules (auto-discovered)
+│   │   ├── policy.md                  # Constitution (human-owned)
+│   │   ├── workflow.md                # Development workflow protocol
+│   │   ├── architecture.md            # Directory structure template
+│   │   └── feedback.md                # Governance feedback loop
 │   ├── hooks/                         # Enforcement hooks (5 scripts)
 │   │   ├── warden-guard.sh           # Pre-write file protection
 │   │   ├── warden-bash-guard.sh      # Bash command validation
 │   │   ├── warden-post-check.sh      # Post-write validation
 │   │   ├── warden-audit.sh           # Project health scoring
 │   │   └── warden-session-end.sh     # Session logging
-│   └── settings.json                  # Hook configuration (read-only)
+│   └── settings.json                  # Hook configuration + permissions.deny
 ├── .github/
 │   └── workflows/                     # CI/CD automation
 │       ├── security-tests.yml         # Security validation workflow
@@ -240,11 +245,6 @@ Warden-AI-Governance-Framework/
 │   ├── test-guard.sh
 │   ├── test-bash-guard.sh
 │   └── run-tests.sh
-├── WARDEN-POLICY.md                  # Constitution (human-owned)
-├── CLAUDE.md                          # Governance template
-├── WARDEN-FEEDBACK.md                # Feedback loop
-├── D-ARCH-STRUCTURE.md                # User project template
-├── D-WORK-WORKFLOW.md                 # Workflow guidance
 ├── lockdown.sh                        # Lock/unlock governance files
 ├── SECURITY.md                        # Security model docs
 ├── README.md                          # This file
@@ -257,7 +257,7 @@ Warden-AI-Governance-Framework/
 ### Layer 1: Prevention (real-time blocking)
 
 **warden-guard.sh** fires on every Write, Edit, and MultiEdit tool call. It:
-- Blocks edits to CLAUDE.md, WARDEN-POLICY.md, hooks, and settings.json
+- Blocks edits to .claude/CLAUDE.md, .claude/rules/*.md, hooks, and settings.json
 - Blocks file creation at project root (unless in the allowlist)
 - Blocks directory nesting deeper than 5 levels
 - Blocks forbidden directory names (temp, misc, old, backup, scratch, junk, etc.)
@@ -265,7 +265,7 @@ Warden-AI-Governance-Framework/
 - Resolves symlinks to prevent bypass attempts
 
 **warden-bash-guard.sh** fires on every Bash command. It catches:
-- `echo "x" > CLAUDE.md` and similar redirects to protected files
+- `echo "x" > .claude/CLAUDE.md` and similar redirects to protected files
 - `sed -i`, `rm`, `mv`, `cp` targeting protected files
 - `git commit --no-verify` (prevents skipping test hooks)
 - Write operations targeting forbidden directories
@@ -330,7 +330,7 @@ The next session reads SESSION-LOG.md and picks up where the previous one left o
 
 ### Starting a session
 
-Claude reads CLAUDE.md automatically. The Session Protocol tells it to also check `docs/SESSION-LOG.md`. It states its understanding of the current phase and asks what to work on.
+Claude reads `.claude/CLAUDE.md` automatically, which references all rules files in `.claude/rules/`. The Session Protocol tells it to also check `docs/SESSION-LOG.md`. It states its understanding of the current phase and asks what to work on.
 
 ### Editing governance files
 
@@ -355,11 +355,11 @@ bash .claude/hooks/warden-audit.sh
 
 ### Recovering context mid-session
 
-Say "warden check" and Claude will re-read CLAUDE.md, all directives, and confirm the current constraints.
+Say "warden check" and Claude will re-read `.claude/CLAUDE.md`, all rules files, and confirm the current constraints.
 
 ### Running parallel Claude instances
 
-Each instance gets its own feature branch and owns specific files. Governance files are shared read-only. Coordinate file ownership before starting. Merge to main one branch at a time. See the Parallel Instances section in CLAUDE.md for details.
+Each instance gets its own feature branch and owns specific files. Governance files are shared read-only. Coordinate file ownership before starting. Merge to main one branch at a time. See the Parallel Instances section in `.claude/CLAUDE.md` for details.
 
 ## Customisation
 
@@ -379,15 +379,17 @@ Edit the arrays/patterns in both `warden-guard.sh` and `warden-bash-guard.sh`. T
 
 The 250-line limit is in `warden-guard.sh` (enforcement) and `warden-audit.sh` (scoring). Change both if you want a different threshold.
 
-### Adding new directives
+### Adding new rules files
 
-Warden supports governance directives as `D-*.md` files at project root:
-- `D-ARCH-STRUCTURE.md` — architecture (included)
-- `D-WORK-WORKFLOW.md` — workflow (included)
-- `D-DATA-MODELS.md` — create when you build your first data model
-- `D-ACCESS-CONTROL.md` — create when you implement auth
+Warden supports governance rules as `.md` files in `.claude/rules/`:
+- `architecture.md` — directory structure template (included)
+- `workflow.md` — development workflow protocol (included)
+- `policy.md` — governance constitution (included)
+- `feedback.md` — governance observations (included)
+- `data-models.md` — create when you build your first data model
+- `access-control.md` — create when you implement auth
 
-Don't create directives speculatively. CLAUDE.md says: "No directives until real code demands them."
+Don't create rules files speculatively. `.claude/CLAUDE.md` says: "No rules beyond architecture.md and workflow.md until real code demands them."
 
 ## What Warden Does NOT Do
 

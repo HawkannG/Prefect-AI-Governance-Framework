@@ -1,4 +1,20 @@
 {
+  "permissions": {
+    "deny": [
+      "Write(./.claude/CLAUDE.md)",
+      "Write(./.claude/rules/*)",
+      "Write(./.claude/hooks/*)",
+      "Write(./.claude/settings.json)",
+      "Edit(./.claude/CLAUDE.md)",
+      "Edit(./.claude/rules/*)",
+      "Edit(./.claude/hooks/*)",
+      "Edit(./.claude/settings.json)",
+      "MultiEdit(./.claude/CLAUDE.md)",
+      "MultiEdit(./.claude/rules/*)",
+      "MultiEdit(./.claude/hooks/*)",
+      "MultiEdit(./.claude/settings.json)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

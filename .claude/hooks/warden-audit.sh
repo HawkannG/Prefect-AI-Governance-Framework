@@ -56,9 +56,8 @@ for f in "$PROJECT_DIR"/*; do
   [ ! -f "$f" ] && continue
   fname=$(basename "$f")
   case "$fname" in
-    WARDEN-POLICY.md|CLAUDE.md|WARDEN-FEEDBACK.md|README.md|SECURITY.md|LICENSE*) ;;
+    README.md|SECURITY.md|LICENSE*) ;;
     lockdown.sh) ;;
-    D-*.md) ;;
     package.json|package-lock.json|pnpm-lock.yaml|yarn.lock) ;;
     tsconfig.json|tsconfig.*.json|requirements.txt|pyproject.toml) ;;
     setup.py|setup.cfg|Makefile|Dockerfile|docker-compose.*) ;;
@@ -196,7 +195,7 @@ fi
 # ── DIMENSION 5: Governance Coverage ───────────────────
 echo ""
 echo "5. GOVERNANCE COVERAGE"
-REQUIRED_FILES=("CLAUDE.md" "README.md" "WARDEN-POLICY.md")
+REQUIRED_FILES=(".claude/CLAUDE.md" "README.md" ".claude/rules/policy.md")
 MISSING_GOV=0
 for rf in "${REQUIRED_FILES[@]}"; do
   if [ ! -f "$PROJECT_DIR/$rf" ]; then
@@ -261,7 +260,7 @@ STALE=0
 NOW=$(date +%s)
 STALE_DAYS=14  # 2 weeks
 
-for gf in "CLAUDE.md" "README.md"; do
+for gf in ".claude/CLAUDE.md" "README.md"; do
   if [ -f "$PROJECT_DIR/$gf" ]; then
     # Use git log if available, otherwise file mtime (FIX V6: Sanitize PROJECT_DIR)
     if command -v git &>/dev/null; then

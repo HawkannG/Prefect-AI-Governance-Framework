@@ -101,19 +101,19 @@ if echo "$REL_PATH" | grep -qE '^\.claude/settings\.json$'; then
   exit 1
 fi
 
-# ── RULE 0c: CLAUDE.MD is HUMAN-ONLY ──────────────────
-if [ "$FILENAME" = "CLAUDE.md" ]; then
-  log_audit "BLOCK" "Attempted edit of CLAUDE.md"
-  echo "🛑 WARDEN BLOCK: CLAUDE.md is human-edit-only." >&2
+# ── RULE 0c: .claude/CLAUDE.md is HUMAN-ONLY ──────────────────
+if echo "$REL_PATH" | grep -qE '^\.claude/CLAUDE\.md$'; then
+  log_audit "BLOCK" "Attempted edit of .claude/CLAUDE.md"
+  echo "🛑 WARDEN BLOCK: .claude/CLAUDE.md is human-edit-only." >&2
   echo "   → Claude cannot modify its own instructions. Suggest changes in chat." >&2
   exit 1
 fi
 
-# ── RULE 0d: WARDEN-POLICY.md is HUMAN-ONLY ─────────
-if [ "$FILENAME" = "WARDEN-POLICY.md" ]; then
-  log_audit "BLOCK" "Attempted edit of WARDEN-POLICY.md"
-  echo "🛑 WARDEN BLOCK: WARDEN-POLICY.md is human-edit-only (Policy §2.1)." >&2
-  echo "   → Suggest your changes in chat. The human will edit this file." >&2
+# ── RULE 0d: .claude/rules/*.md are HUMAN-ONLY ─────────
+if echo "$REL_PATH" | grep -qE '^\.claude/rules/.*\.md$'; then
+  log_audit "BLOCK" "Attempted edit of rules file: $REL_PATH"
+  echo "🛑 WARDEN BLOCK: Rules files (.claude/rules/*.md) are human-edit-only (Policy §2.1)." >&2
+  echo "   → Suggest your changes in chat. The human will edit governance files." >&2
   exit 1
 fi
 
@@ -124,7 +124,6 @@ fi
 # ── RULE 1: ROOT LOCKDOWN ─────────────────────────────
 if [ "$DIRNAME" = "." ] || [ "$DIRNAME" = "$PROJECT_DIR" ]; then
   ALLOWED_ROOT=(
-    "WARDEN-POLICY.md" "CLAUDE.md" "WARDEN-FEEDBACK.md"
     "README.md" "SECURITY.md" "LICENSE" "LICENSE.md"
     "lockdown.sh"
     "package.json" "package-lock.json" "pnpm-lock.yaml" "yarn.lock"
@@ -144,19 +143,14 @@ if [ "$DIRNAME" = "." ] || [ "$DIRNAME" = "$PROJECT_DIR" ]; then
     ".folderslintrc" ".lslintrc.yml"
   )
 
-  # Check if it's a directive file (allowed at root, but must pass size check in Rule 4)
+  # Check against allowed root files list
   ALLOWED=false
-  if [[ "$FILENAME" =~ ^D-[A-Z]+-[A-Z]+\.md$ ]]; then
-    ALLOWED=true
-  else
-    # Check against allowed root files list
-    for f in "${ALLOWED_ROOT[@]}"; do
-      if [ "$FILENAME" = "$f" ]; then
-        ALLOWED=true
-        break
-      fi
-    done
-  fi
+  for f in "${ALLOWED_ROOT[@]}"; do
+    if [ "$FILENAME" = "$f" ]; then
+      ALLOWED=true
+      break
+    fi
+  done
 
   if [ "$ALLOWED" = false ]; then
     log_audit "BLOCK" "Unauthorized root file: $FILENAME"

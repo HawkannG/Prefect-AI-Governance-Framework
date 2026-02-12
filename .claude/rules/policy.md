@@ -1,4 +1,10 @@
-# WARDEN-POLICY.md — Constitution for AI-Assisted Project Governance
+---
+paths:
+  - "**/*"
+priority: high
+---
+
+# Warden Policy — Constitution for AI-Assisted Project Governance
 
 > **Version:** 2.0
 > **Type:** Constitution (highest governance authority)

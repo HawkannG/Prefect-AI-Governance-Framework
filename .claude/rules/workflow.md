@@ -1,7 +1,12 @@
-# D-WORK-WORKFLOW — Development Workflow Protocol
+---
+paths:
+  - "**/*"
+---
 
-> **Policy Area:** WORK  
-> **Version:** 1.2  
+# Development Workflow Protocol
+
+> **Policy Area:** WORK
+> **Version:** 1.2
 > **Status:** Active  
 > **Enforcement:** MUST (per RFC 2119)  
 > **Purpose:** How every feature, fix, and change moves from idea to shipped code with Claude Code. Includes mandatory UAT checkpoints at each phase.
