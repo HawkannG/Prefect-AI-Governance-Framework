@@ -39,7 +39,7 @@ echo "   - prefect-*.sh -> warden-*.sh"
 echo "   - Update all file references"
 echo ""
 
-read -p "Create git backup first? (recommended) (Y/n) " -n 1 -r
+read -p "Create git backup first? (recommended) (Y/n) " -n 1 -r < /dev/tty
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then
   if [ -d ".git" ]; then
@@ -51,7 +51,7 @@ if [[ ! $REPLY =~ ^[Nn]$ ]]; then
 fi
 
 echo ""
-read -p "Continue with migration? (y/N) " -n 1 -r
+read -p "Continue with migration? (y/N) " -n 1 -r < /dev/tty
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
   echo "Migration cancelled."

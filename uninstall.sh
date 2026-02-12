@@ -20,7 +20,7 @@ echo "  - .claude/ directory (CLAUDE.md, rules/, hooks/, settings.json)"
 echo "  - docs/PRODUCT-SPEC.md, docs/AI-UAT-CHECKLIST.md, docs/SESSION-LOG.md"
 echo "  - lockdown.sh"
 echo ""
-read -p "Continue with uninstall? (y/N) " -n 1 -r
+read -p "Continue with uninstall? (y/N) " -n 1 -r < /dev/tty
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
   echo "Uninstall cancelled."
@@ -44,7 +44,7 @@ rm -f lockdown.sh
 # Remove docs (optional - ask first)
 if [ -d "docs" ]; then
   echo ""
-  read -p "Remove docs/ directory? (y/N) " -n 1 -r
+  read -p "Remove docs/ directory? (y/N) " -n 1 -r < /dev/tty
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     rm -f docs/PRODUCT-SPEC.md

@@ -30,7 +30,7 @@ echo ""
 if [ ! -d "$TARGET_DIR/.git" ]; then
   echo -e "${YELLOW}Warning: Target is not a git repository${NC}"
   echo "   Warden works best with git projects"
-  read -p "   Continue anyway? (y/N) " -n 1 -r
+  read -p "   Continue anyway? (y/N) " -n 1 -r < /dev/tty
   echo
   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Installation cancelled."
@@ -53,7 +53,7 @@ fi
 # Check for existing .claude/settings.json
 if [ -f "$TARGET_DIR/.claude/settings.json" ]; then
   echo -e "${YELLOW}.claude/settings.json already exists${NC}"
-  read -p "   Overwrite? (y/N) " -n 1 -r
+  read -p "   Overwrite? (y/N) " -n 1 -r < /dev/tty
   echo
   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Installation cancelled. Use migrate-from-prefect.sh if upgrading."
@@ -108,9 +108,9 @@ echo ""
 # Customize .claude/CLAUDE.md
 echo -e "Customizing .claude/CLAUDE.md..."
 echo ""
-read -p "Project name: " PROJECT_NAME || PROJECT_NAME=""
-read -p "Project description: " PROJECT_DESC || PROJECT_DESC=""
-read -p "Tech stack (e.g., Next.js 14, FastAPI): " TECH_STACK || TECH_STACK=""
+read -p "Project name: " PROJECT_NAME < /dev/tty || PROJECT_NAME=""
+read -p "Project description: " PROJECT_DESC < /dev/tty || PROJECT_DESC=""
+read -p "Tech stack (e.g., Next.js 14, FastAPI): " TECH_STACK < /dev/tty || TECH_STACK=""
 
 # Only replace if values were provided
 if [ -n "$PROJECT_NAME" ]; then
