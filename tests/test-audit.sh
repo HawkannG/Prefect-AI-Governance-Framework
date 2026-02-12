@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# test-audit.sh — Tests for prefect-audit.sh hook
+# test-audit.sh — Tests for warden-audit.sh hook
 # Tests drift score calculation and governance health metrics
 # Usage: bash tests/test-audit.sh [project-dir]
 
 PROJECT_DIR="${1:-.}"
-HOOK="$PROJECT_DIR/.claude/hooks/prefect-audit.sh"
+HOOK="$PROJECT_DIR/.claude/hooks/warden-audit.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -30,7 +30,7 @@ test_fail() {
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 PREFECT-AUDIT.SH HOOK TESTS"
+echo "📊 WARDEN-AUDIT.SH HOOK TESTS"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ══════════════════════════════════════════════════════════════
@@ -102,8 +102,8 @@ mkdir -p "$TEST_PROJECT"/{src,docs,.claude/hooks}
 
 # Copy essential files
 touch "$TEST_PROJECT/CLAUDE.md"
-touch "$TEST_PROJECT/PREFECT-POLICY.md"
-touch "$TEST_PROJECT/PREFECT-FEEDBACK.md"
+touch "$TEST_PROJECT/WARDEN-POLICY.md"
+touch "$TEST_PROJECT/WARDEN-FEEDBACK.md"
 touch "$TEST_PROJECT/README.md"
 touch "$TEST_PROJECT/D-WORK-WORKFLOW.md"
 touch "$TEST_PROJECT/D-ARCH-STRUCTURE.md"
@@ -285,7 +285,7 @@ echo "────────────────────────�
 # Test 18: Output is well-formatted
 output=$(bash "$HOOK" "$PROJECT_DIR" 2>&1 || true)
 
-if echo "$output" | grep -q "PREFECT GOVERNANCE AUDIT"; then
+if echo "$output" | grep -q "WARDEN GOVERNANCE AUDIT"; then
   test_pass "A18: Output has proper header"
 else
   test_fail "A18: Missing audit header"

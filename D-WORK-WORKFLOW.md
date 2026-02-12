@@ -171,7 +171,7 @@ Claude walks through each acceptance criterion and verifies the code actually im
 ✅ / ❌ No unplanned files created
 ```
 
-**5.4 Drift Score** (if available): `bash .claude/hooks/prefect-audit.sh`
+**5.4 Drift Score** (if available): `bash .claude/hooks/warden-audit.sh`
 
 ### Gate: VERIFY → CLOSE
 Human says: "Looks good" / "Ship it" → proceed to CLOSE.  
@@ -201,7 +201,7 @@ Or: "Fix X" → back to BUILD. "Wrong thing" → back to PROPOSE.
      `feat: Add login form (UAT: login-happy-path, login-invalid-creds, login-empty-fields)`
    - PR descriptions include UAT self-test results and link to acceptance criteria
 
-4. **Log governance observations** to PREFECT-FEEDBACK.md if the plan changed mid-build, a directive didn't cover something, or a rule was too strict/loose.
+4. **Log governance observations** to WARDEN-FEEDBACK.md if the plan changed mid-build, a directive didn't cover something, or a rule was too strict/loose.
 
 ---
 
@@ -214,7 +214,7 @@ Claude reads CLAUDE.md and states: project, current phase, last session's work, 
 Human says "wrap up" → Claude runs CLOSE for in-progress work, then provides session summary: tasks completed, tasks in progress, governance updates, drift score, recommended next session.
 
 ### Mid-Session Recovery
-Human says "prefect check" → Claude re-reads CLAUDE.md + active directives, confirms current task, phase, and active constraints.
+Human says "warden check" → Claude re-reads CLAUDE.md + active directives, confirms current task, phase, and active constraints.
 
 ---
 
@@ -232,7 +232,7 @@ Full flow as described above.
 - Extra checkpoints (every 2-3 files)
 - Full drift audit in VERIFY
 - Full UAT self-test against every criterion
-- Document architectural decisions in PREFECT-FEEDBACK.md
+- Document architectural decisions in WARDEN-FEEDBACK.md
 
 ---
 

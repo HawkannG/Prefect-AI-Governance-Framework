@@ -115,7 +115,7 @@ demos/**/*.mp4
 demos/**/*.webm
 
 # Local Configuration Overrides
-.prefect.conf.local
+.warden.conf.local
 settings.local.json
 
 # Session Logs (if very large)

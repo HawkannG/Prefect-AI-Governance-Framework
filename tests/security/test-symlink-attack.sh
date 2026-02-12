@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 setup() {
   TEST_DIR=$(mktemp -d)
   echo "protected content" > "$TEST_DIR/CLAUDE.md"
-  echo "protected policy" > "$TEST_DIR/PREFECT-POLICY.md"
+  echo "protected policy" > "$TEST_DIR/WARDEN-POLICY.md"
   mkdir -p "$TEST_DIR/.claude/hooks"
   echo "normal file" > "$TEST_DIR/safe.md"
 }
@@ -30,7 +30,7 @@ teardown() {
 run_hook() {
   local file_path="$1"
   echo "{\"tool\":\"Edit\",\"tool_input\":{\"file_path\":\"$file_path\"}}" | \
-    CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1
+    CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1
   echo $?
 }
 
@@ -87,8 +87,8 @@ test_symlink_nested() {
 test_symlink_to_hooks() {
   echo -n "  Test 1.4: Edit hook via symlink... "
 
-  echo "#!/bin/bash" > "$TEST_DIR/.claude/hooks/prefect-guard.sh"
-  ln -s .claude/hooks/prefect-guard.sh "$TEST_DIR/innocent.sh"
+  echo "#!/bin/bash" > "$TEST_DIR/.claude/hooks/warden-guard.sh"
+  ln -s .claude/hooks/warden-guard.sh "$TEST_DIR/innocent.sh"
   local result=$(run_hook "$TEST_DIR/innocent.sh")
 
   if [ "$result" -eq 1 ]; then

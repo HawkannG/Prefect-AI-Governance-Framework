@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail  # FIX V8: Exit on error, undefined var, pipe failure
-# prefect-session-end.sh — Stop hook for Prefect governance
+# warden-session-end.sh — Stop hook for Warden governance
 # Runs when Claude Code session ends. Performs mini drift audit.
 # Output is informational — reminds Claude to do session-end protocol.
 
@@ -14,7 +14,7 @@ if [ ! -d "$PROJECT_DIR" ]; then
 fi
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-echo "📋 PREFECT SESSION-END AUDIT" >&2
+echo "📋 WARDEN SESSION-END AUDIT" >&2
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
 
 ISSUES=0
@@ -25,7 +25,7 @@ for f in "$PROJECT_DIR"/*; do
   [ ! -f "$f" ] && continue
   fname=$(basename "$f")
   case "$fname" in
-    PREFECT-POLICY.md|CLAUDE.md|PREFECT-FEEDBACK.md|README.md|SECURITY.md|LICENSE*) ;;
+    WARDEN-POLICY.md|CLAUDE.md|WARDEN-FEEDBACK.md|README.md|SECURITY.md|LICENSE*) ;;
     lockdown.sh) ;;
     D-*.md) ;;
     package.json|package-lock.json|tsconfig.json|requirements.txt|pyproject.toml) ;;
@@ -44,9 +44,9 @@ if [ ${#ROOT_UNKNOWN[@]} -gt 0 ]; then
   echo "⚠️  Unregistered root files: ${ROOT_UNKNOWN[*]}" >&2
 fi
 
-# Check: Does PREFECT-FEEDBACK.md exist?
-if [ ! -f "$PROJECT_DIR/PREFECT-FEEDBACK.md" ]; then
-  echo "📝 No PREFECT-FEEDBACK.md found (create if you have governance observations)." >&2
+# Check: Does WARDEN-FEEDBACK.md exist?
+if [ ! -f "$PROJECT_DIR/WARDEN-FEEDBACK.md" ]; then
+  echo "📝 No WARDEN-FEEDBACK.md found (create if you have governance observations)." >&2
 fi
 
 # Check: How many directives exist?
@@ -83,7 +83,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 if [ "$ISSUES" -eq 0 ]; then
   echo "✅ No drift detected. Clean session." >&2
 else
-  echo "⚠️  $ISSUES drift issue(s) detected. Log in PREFECT-FEEDBACK.md." >&2
+  echo "⚠️  $ISSUES drift issue(s) detected. Log in WARDEN-FEEDBACK.md." >&2
 fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
 

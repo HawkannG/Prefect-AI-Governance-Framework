@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# test-bash-guard.sh — Tests for prefect-bash-guard.sh hook
+# test-bash-guard.sh — Tests for warden-bash-guard.sh hook
 # Tests bash command filtering and protection bypass prevention
 # Usage: bash tests/test-bash-guard.sh [project-dir]
 
 PROJECT_DIR="${1:-.}"
-HOOK="$PROJECT_DIR/.claude/hooks/prefect-bash-guard.sh"
+HOOK="$PROJECT_DIR/.claude/hooks/warden-bash-guard.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -46,7 +46,7 @@ run_test() {
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🛡️  PREFECT-BASH-GUARD.SH HOOK TESTS"
+echo "🛡️  WARDEN-BASH-GUARD.SH HOOK TESTS"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ══════════════════════════════════════════════════════════════
@@ -63,8 +63,8 @@ run_test '{"tool_name":"Bash","tool_input":{"command":"echo hacked > CLAUDE.md"}
 run_test '{"tool_name":"Bash","tool_input":{"command":"echo hacked >> CLAUDE.md"}}' 1 \
   "B1.2: Block echo append to CLAUDE.md"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"cat evil.txt > PREFECT-POLICY.md"}}' 1 \
-  "B1.3: Block cat redirect to PREFECT-POLICY.md"
+run_test '{"tool_name":"Bash","tool_input":{"command":"cat evil.txt > WARDEN-POLICY.md"}}' 1 \
+  "B1.3: Block cat redirect to WARDEN-POLICY.md"
 
 run_test '{"tool_name":"Bash","tool_input":{"command":"printf 'bad' > CLAUDE.md"}}' 1 \
   "B1.4: Block printf redirect to CLAUDE.md"
@@ -73,8 +73,8 @@ run_test '{"tool_name":"Bash","tool_input":{"command":"printf 'bad' > CLAUDE.md"
 run_test '{"tool_name":"Bash","tool_input":{"command":"echo hacked | tee CLAUDE.md"}}' 1 \
   "B1.5: Block tee to CLAUDE.md"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"cat bad.txt | tee PREFECT-POLICY.md"}}' 1 \
-  "B1.6: Block tee to PREFECT-POLICY.md"
+run_test '{"tool_name":"Bash","tool_input":{"command":"cat bad.txt | tee WARDEN-POLICY.md"}}' 1 \
+  "B1.6: Block tee to WARDEN-POLICY.md"
 
 run_test '{"tool_name":"Bash","tool_input":{"command":"echo bad | tee -a CLAUDE.md"}}' 1 \
   "B1.7: Block tee append to CLAUDE.md"
@@ -83,36 +83,36 @@ run_test '{"tool_name":"Bash","tool_input":{"command":"echo bad | tee -a CLAUDE.
 run_test '{"tool_name":"Bash","tool_input":{"command":"sed -i \"s/NEVER/ALWAYS/\" CLAUDE.md"}}' 1 \
   "B1.8: Block sed -i on CLAUDE.md"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"sed -i \"/RULE 0/d\" PREFECT-POLICY.md"}}' 1 \
-  "B1.9: Block sed -i delete on PREFECT-POLICY.md"
+run_test '{"tool_name":"Bash","tool_input":{"command":"sed -i \"/RULE 0/d\" WARDEN-POLICY.md"}}' 1 \
+  "B1.9: Block sed -i delete on WARDEN-POLICY.md"
 
 # mv attacks (overwrite protected file)
 run_test '{"tool_name":"Bash","tool_input":{"command":"mv /tmp/evil.md CLAUDE.md"}}' 1 \
   "B1.10: Block mv to overwrite CLAUDE.md"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"mv temp.txt PREFECT-POLICY.md"}}' 1 \
-  "B1.11: Block mv to overwrite PREFECT-POLICY.md"
+run_test '{"tool_name":"Bash","tool_input":{"command":"mv temp.txt WARDEN-POLICY.md"}}' 1 \
+  "B1.11: Block mv to overwrite WARDEN-POLICY.md"
 
 # cp attacks (overwrite protected file)
 run_test '{"tool_name":"Bash","tool_input":{"command":"cp /tmp/evil.md CLAUDE.md"}}' 1 \
   "B1.12: Block cp to overwrite CLAUDE.md"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"cp -f bad.txt PREFECT-POLICY.md"}}' 1 \
-  "B1.13: Block cp -f to overwrite PREFECT-POLICY.md"
+run_test '{"tool_name":"Bash","tool_input":{"command":"cp -f bad.txt WARDEN-POLICY.md"}}' 1 \
+  "B1.13: Block cp -f to overwrite WARDEN-POLICY.md"
 
 # rm attacks
 run_test '{"tool_name":"Bash","tool_input":{"command":"rm CLAUDE.md"}}' 1 \
   "B1.14: Block rm CLAUDE.md"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"rm -f PREFECT-POLICY.md"}}' 1 \
-  "B1.15: Block rm -f PREFECT-POLICY.md"
+run_test '{"tool_name":"Bash","tool_input":{"command":"rm -f WARDEN-POLICY.md"}}' 1 \
+  "B1.15: Block rm -f WARDEN-POLICY.md"
 
 # chmod/chown attacks
 run_test '{"tool_name":"Bash","tool_input":{"command":"chmod 777 CLAUDE.md"}}' 1 \
   "B1.16: Block chmod on CLAUDE.md"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"chown user:group PREFECT-POLICY.md"}}' 1 \
-  "B1.17: Block chown on PREFECT-POLICY.md"
+run_test '{"tool_name":"Bash","tool_input":{"command":"chown user:group WARDEN-POLICY.md"}}' 1 \
+  "B1.17: Block chown on WARDEN-POLICY.md"
 
 # ══════════════════════════════════════════════════════════════
 # RULE 2: BLOCK HOOK SELF-MODIFICATION
@@ -122,36 +122,36 @@ echo "Rule 2: Block Hook Self-Modification"
 echo "────────────────────────────────────────"
 
 # Direct modification attacks
-run_test '{"tool_name":"Bash","tool_input":{"command":"echo \"exit 0\" > .claude/hooks/prefect-guard.sh"}}' 1 \
-  "B2.1: Block redirect to prefect-guard.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"echo \"exit 0\" > .claude/hooks/warden-guard.sh"}}' 1 \
+  "B2.1: Block redirect to warden-guard.sh"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"sed -i \"s/exit 1/exit 0/\" .claude/hooks/prefect-bash-guard.sh"}}' 1 \
-  "B2.2: Block sed -i on prefect-bash-guard.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"sed -i \"s/exit 1/exit 0/\" .claude/hooks/warden-bash-guard.sh"}}' 1 \
+  "B2.2: Block sed -i on warden-bash-guard.sh"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"rm .claude/hooks/prefect-guard.sh"}}' 1 \
-  "B2.3: Block rm of prefect-guard.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"rm .claude/hooks/warden-guard.sh"}}' 1 \
+  "B2.3: Block rm of warden-guard.sh"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"mv /tmp/evil.sh .claude/hooks/prefect-guard.sh"}}' 1 \
-  "B2.4: Block mv to replace prefect-guard.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"mv /tmp/evil.sh .claude/hooks/warden-guard.sh"}}' 1 \
+  "B2.4: Block mv to replace warden-guard.sh"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"cp /tmp/evil.sh .claude/hooks/prefect-audit.sh"}}' 1 \
-  "B2.5: Block cp to replace prefect-audit.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"cp /tmp/evil.sh .claude/hooks/warden-audit.sh"}}' 1 \
+  "B2.5: Block cp to replace warden-audit.sh"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"chmod +x .claude/hooks/prefect-session-end.sh"}}' 1 \
-  "B2.6: Block chmod on prefect-session-end.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"chmod +x .claude/hooks/warden-session-end.sh"}}' 1 \
+  "B2.6: Block chmod on warden-session-end.sh"
 
 # Editor attacks
-run_test '{"tool_name":"Bash","tool_input":{"command":"vim .claude/hooks/prefect-guard.sh"}}' 1 \
-  "B2.7: Block vim on prefect-guard.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"vim .claude/hooks/warden-guard.sh"}}' 1 \
+  "B2.7: Block vim on warden-guard.sh"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"nano .claude/hooks/prefect-bash-guard.sh"}}' 1 \
-  "B2.8: Block nano on prefect-bash-guard.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"nano .claude/hooks/warden-bash-guard.sh"}}' 1 \
+  "B2.8: Block nano on warden-bash-guard.sh"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"vi .claude/hooks/prefect-audit.sh"}}' 1 \
-  "B2.9: Block vi on prefect-audit.sh"
+run_test '{"tool_name":"Bash","tool_input":{"command":"vi .claude/hooks/warden-audit.sh"}}' 1 \
+  "B2.9: Block vi on warden-audit.sh"
 
-run_test '{"tool_name":"Bash","tool_input":{"command":"emacs .claude/hooks/prefect-post-check.sh"}}' 1 \
-  "B2.10: Block emacs on prefect-post-check.sh (via edit pattern)"
+run_test '{"tool_name":"Bash","tool_input":{"command":"emacs .claude/hooks/warden-post-check.sh"}}' 1 \
+  "B2.10: Block emacs on warden-post-check.sh (via edit pattern)"
 
 # ══════════════════════════════════════════════════════════════
 # RULE 3: BLOCK SETTINGS.JSON MODIFICATION

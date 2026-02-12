@@ -11,11 +11,11 @@
 
 ## Purpose
 
-**This is a TEMPLATE for projects using Prefect.** Customize it for your project's specific directory structure and naming conventions.
+**This is a TEMPLATE for projects using Warden.** Customize it for your project's specific directory structure and naming conventions.
 
 This directive defines the only approved directories and file locations for your project. Any file or directory not listed here is unauthorized. The AI must consult this directive before creating any file and must update this directive (with human approval) before creating any new directory.
 
-**For the Prefect Framework's own structure**, see the "Framework Directory Structure" section in README.md.
+**For the Warden Framework's own structure**, see the "Framework Directory Structure" section in README.md.
 
 ---
 
@@ -36,7 +36,7 @@ This directive defines the only approved directories and file locations for your
 │   ├── test_core/
 │   └── test_utils/
 ├── docs/                    # Documentation (non-governance)
-└── [governance files at root — see PREFECT-POLICY.md Section 4]
+└── [governance files at root — see WARDEN-POLICY.md Section 4]
 ```
 
 **Option 2: Web Application (Frontend + Backend)**
@@ -59,7 +59,7 @@ This directive defines the only approved directories and file locations for your
 │   └── package.json
 ├── scripts/                 # Build/deploy scripts
 ├── docs/                    # Documentation
-└── [governance files at root — see PREFECT-POLICY.md Section 4]
+└── [governance files at root — see WARDEN-POLICY.md Section 4]
 ```
 
 **Option 3: Monorepo/Multi-Service**
@@ -79,7 +79,7 @@ This directive defines the only approved directories and file locations for your
 │   ├── types/
 │   └── utils/
 ├── docs/                    # Documentation
-└── [governance files at root — see PREFECT-POLICY.md Section 4]
+└── [governance files at root — see WARDEN-POLICY.md Section 4]
 ```
 
 **After choosing a structure, delete the unused options and list ONLY your project's approved directories.**
@@ -89,9 +89,9 @@ This directive defines the only approved directories and file locations for your
 Before creating ANY new file, the AI must:
 
 1. Identify the target directory in the approved tree above
-2. If directory exists in tree → proceed, output PREFECT CHECK
+2. If directory exists in tree → proceed, output WARDEN CHECK
 3. If directory does NOT exist → STOP, do not create the file
-4. Write a proposal to PREFECT-FEEDBACK.md (type: "Directive Gap")
+4. Write a proposal to WARDEN-FEEDBACK.md (type: "Directive Gap")
 5. Wait for human to approve and update this directive
 
 **The AI may never create a directory that is not listed in INS-DA1-001.**
@@ -130,7 +130,7 @@ The `frontend/src/utils/` directory is limited to 5 files maximum. If the cap is
 
 - Evaluate whether a "utility" should actually be a service, hook, or component
 - If genuinely a utility, consider whether an existing utility file can absorb it
-- Only as last resort: request a cap increase via PREFECT-FEEDBACK.md
+- Only as last resort: request a cap increase via WARDEN-FEEDBACK.md
 
 This prevents utils from becoming a dumping ground.
 
@@ -143,7 +143,7 @@ The project may never contain two directories serving the same purpose. Examples
 - Both `services/` and `api/` (for client-side API calls)
 - Both `models/` and `entities/`
 
-If a naming conflict arises, document the resolution and rationale in PREFECT-FEEDBACK.md for governance review.
+If a naming conflict arises, document the resolution and rationale in WARDEN-FEEDBACK.md for governance review.
 
 ### INS-DA1-008: Empty Directory Prohibition
 
@@ -151,11 +151,11 @@ No empty directories may exist in the project. If a directory is created, it mus
 
 ### INS-DA1-009: Data Model Directory Changes
 
-When the approved tree is modified to add new directories for data models or schemas, document the change and its purpose in PREFECT-FEEDBACK.md. If you create a D-DATA-MODELS.md directive (recommended when you have multiple models), update it to reflect the new model locations.
+When the approved tree is modified to add new directories for data models or schemas, document the change and its purpose in WARDEN-FEEDBACK.md. If you create a D-DATA-MODELS.md directive (recommended when you have multiple models), update it to reflect the new model locations.
 
 ### INS-DA1-010: New Top-Level Directory Justification
 
-When a new top-level directory is added (e.g., a new service, a new frontend app), document the rationale in PREFECT-FEEDBACK.md, including:
+When a new top-level directory is added (e.g., a new service, a new frontend app), document the rationale in WARDEN-FEEDBACK.md, including:
 - Why the new directory is needed
 - What alternatives were considered
 - How it fits into the overall architecture
@@ -205,5 +205,5 @@ This creates a decision record for future reference.
 - [ ] Utils directories contain ≤ 5 files (INS-DA1-006) — adjust cap if needed
 - [ ] No duplicate-purpose directories (INS-DA1-007)
 - [ ] No empty directories (INS-DA1-008)
-- [ ] Root contains only allowed files (PREFECT-POLICY.md Section 4)
+- [ ] Root contains only allowed files (WARDEN-POLICY.md Section 4)
 - [ ] Documentation exists for structural changes (INS-DA1-009, INS-DA1-010)

@@ -2,16 +2,16 @@
 
 ## Threat Model
 
-⚠️ **Critical Understanding:** Prefect is designed to prevent **unintentional** governance violations by Claude Code, not to defend against a **deliberately adversarial** AI agent. The hooks are security controls for workflow enforcement, **not a sandbox**.
+⚠️ **Critical Understanding:** Warden is designed to prevent **unintentional** governance violations by Claude Code, not to defend against a **deliberately adversarial** AI agent. The hooks are security controls for workflow enforcement, **not a sandbox**.
 
-### What Prefect Protects Against ✅
+### What Warden Protects Against ✅
 
-- Accidental edits to governance files (CLAUDE.md, PREFECT-POLICY.md)
+- Accidental edits to governance files (CLAUDE.md, WARDEN-POLICY.md)
 - Workflow drift (Claude skipping phases or ignoring instructions)
 - Project structure violations (temp/ directories, excessive nesting)
 - Unintended modifications to hooks and configuration
 
-### What Prefect Does NOT Protect Against ❌
+### What Warden Does NOT Protect Against ❌
 
 - **Adversarial AI**: An AI agent actively attempting to bypass hooks
 - **Filesystem access outside Claude Code**: Manual edits or other tools
@@ -27,7 +27,7 @@
 - **Audit logs are not tamper-proof**
 - **Path validation is heuristic-based**, not exhaustive
 
-For high-security environments, combine Prefect with:
+For high-security environments, combine Warden with:
 - File integrity monitoring (AIDE, Tripwire)
 - Immutable file flags (`chattr +i` on Linux)
 - Separate access control (filesystem permissions, SELinux)
@@ -47,7 +47,7 @@ For high-security environments, combine Prefect with:
 ### How to Report
 
 Use GitHub's private security advisory:
-- https://github.com/HawkannG/Prefect-AI-Governance-Framework/security/advisories/new
+- https://github.com/HawkannG/Warden-AI-Governance-Framework/security/advisories/new
 
 Or contact the maintainer directly (see README).
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run-security-tests.sh — Master test runner for Prefect security suite
+# run-security-tests.sh — Master test runner for Warden security suite
 # Runs all security tests and produces summary report
 
 set -euo pipefail
@@ -16,7 +16,7 @@ TOTAL_TESTS=0
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo -e "${BLUE}🔐 Prefect AI Governance Framework — Security Test Suite${NC}"
+echo -e "${BLUE}🔐 Claude Warden AI Governance Framework — Security Test Suite${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "Running comprehensive security tests for v6.0 hardening..."
@@ -29,7 +29,7 @@ if ! command -v jq &>/dev/null; then
   exit 2
 fi
 
-if [ ! -f ".claude/hooks/prefect-guard.sh" ]; then
+if [ ! -f ".claude/hooks/warden-guard.sh" ]; then
   echo -e "${RED}❌ ERROR: Hook scripts not found${NC}"
   echo "   Run from project root directory"
   exit 2

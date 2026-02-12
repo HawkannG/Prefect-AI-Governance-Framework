@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# test-post-check.sh — Tests for prefect-post-check.sh hook
+# test-post-check.sh — Tests for warden-post-check.sh hook
 # Tests post-write validation and warning messages
 # Usage: bash tests/test-post-check.sh [project-dir]
 
 PROJECT_DIR="${1:-.}"
-HOOK="$PROJECT_DIR/.claude/hooks/prefect-post-check.sh"
+HOOK="$PROJECT_DIR/.claude/hooks/warden-post-check.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -30,7 +30,7 @@ test_fail() {
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "⚠️  PREFECT-POST-CHECK.SH HOOK TESTS"
+echo "⚠️  WARDEN-POST-CHECK.SH HOOK TESTS"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ══════════════════════════════════════════════════════════════
@@ -79,7 +79,7 @@ echo "function test() { return true; }" > "$PROJECT_DIR/tests/post-check-tests/s
 output=$(echo '{"tool_name":"Write","tool_input":{"file_path":"tests/post-check-tests/small.ts","content":"ok"}}' | \
   bash "$HOOK" 2>&1 || true)
 
-if ! echo "$output" | grep -q "PREFECT DRIFT"; then
+if ! echo "$output" | grep -q "WARDEN DRIFT"; then
   test_pass "P4: No warning for small source file (< 250 lines)"
 else
   test_fail "P4: Unexpected warning for small file"
@@ -93,7 +93,7 @@ fi
 output=$(echo '{"tool_name":"Write","tool_input":{"file_path":"tests/post-check-tests/large.ts","content":"ok"}}' | \
   bash "$HOOK" 2>&1 || true)
 
-if echo "$output" | grep -q "PREFECT DRIFT"; then
+if echo "$output" | grep -q "WARDEN DRIFT"; then
   test_pass "P5: Warns about oversized source file (300 lines)"
 else
   test_fail "P5: Missing warning for oversized file"
@@ -107,7 +107,7 @@ else
 fi
 
 # Test 7: Warning suggests action
-if echo "$output" | grep -qiE "(PREFECT-FEEDBACK|split)"; then
+if echo "$output" | grep -qiE "(WARDEN-FEEDBACK|split)"; then
   test_pass "P7: Warning suggests logging or splitting file"
 else
   test_fail "P7: Warning doesn't suggest action"
@@ -122,7 +122,7 @@ for ext in js jsx py rb go rs java cs cpp; do
   output=$(echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"tests/post-check-tests/large.$ext\",\"content\":\"ok\"}}" | \
     bash "$HOOK" 2>&1 || true)
 
-  if echo "$output" | grep -q "PREFECT DRIFT"; then
+  if echo "$output" | grep -q "WARDEN DRIFT"; then
     test_pass "P8.$ext: Warns about oversized .$ext file"
   else
     test_fail "P8.$ext: Missing warning for .$ext file"
@@ -137,7 +137,7 @@ done
 output=$(echo '{"tool_name":"Write","tool_input":{"file_path":"tests/post-check-tests/large.txt","content":"ok"}}' | \
   bash "$HOOK" 2>&1 || true)
 
-if ! echo "$output" | grep -q "PREFECT DRIFT"; then
+if ! echo "$output" | grep -q "WARDEN DRIFT"; then
   test_pass "P9: No warning for non-source file (large.txt)"
 else
   test_fail "P9: Unexpected warning for .txt file"
@@ -236,7 +236,7 @@ mkdir -p "$PROJECT_DIR/tests"
 output=$(echo '{"tool_name":"Write","tool_input":{"file_path":"tests/exactly-250.ts","content":"ok"}}' | \
   bash "$HOOK" 2>&1 || true)
 
-if ! echo "$output" | grep -q "PREFECT DRIFT"; then
+if ! echo "$output" | grep -q "WARDEN DRIFT"; then
   test_pass "P15: No warning at exactly 250 lines (boundary case)"
 else
   test_fail "P15: Should not warn at exactly 250 lines"
@@ -252,7 +252,7 @@ rm -f "$PROJECT_DIR/tests/exactly-250.ts"
 output=$(echo '{"tool_name":"Write","tool_input":{"file_path":"tests/just-over.ts","content":"ok"}}' | \
   bash "$HOOK" 2>&1 || true)
 
-if echo "$output" | grep -q "PREFECT DRIFT"; then
+if echo "$output" | grep -q "WARDEN DRIFT"; then
   test_pass "P16: Warns at 251 lines (just over boundary)"
 else
   test_fail "P16: Should warn at 251 lines"
@@ -269,7 +269,7 @@ mkdir -p "$PROJECT_DIR/tests"
 output=$(echo '{"tool_name":"Write","tool_input":{"file_path":"tests/file with spaces.ts","content":"ok"}}' | \
   bash "$HOOK" 2>&1 || true)
 
-if echo "$output" | grep -q "PREFECT DRIFT"; then
+if echo "$output" | grep -q "WARDEN DRIFT"; then
   test_pass "P17: Handles file paths with spaces"
 else
   test_fail "P17: Failed to process file with spaces"

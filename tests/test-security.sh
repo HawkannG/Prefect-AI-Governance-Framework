@@ -6,9 +6,9 @@ set -euo pipefail
 
 PROJECT_DIR="${1:-.}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOOK_GUARD="$PROJECT_DIR/.claude/hooks/prefect-guard.sh"
-HOOK_BASH_GUARD="$PROJECT_DIR/.claude/hooks/prefect-bash-guard.sh"
-HOOK_AUDIT="$PROJECT_DIR/.claude/hooks/prefect-audit.sh"
+HOOK_GUARD="$PROJECT_DIR/.claude/hooks/warden-guard.sh"
+HOOK_BASH_GUARD="$PROJECT_DIR/.claude/hooks/warden-bash-guard.sh"
+HOOK_AUDIT="$PROJECT_DIR/.claude/hooks/warden-audit.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -99,7 +99,7 @@ run_hook "$HOOK_GUARD" \
   "V1.2: Block write to relative symlink to CLAUDE.md"
 
 # Test 1.3: Symlink to hook script
-create_test_symlink "$SCRIPT_DIR/fixtures/link-to-hook.sh" "$PROJECT_DIR/.claude/hooks/prefect-guard.sh"
+create_test_symlink "$SCRIPT_DIR/fixtures/link-to-hook.sh" "$PROJECT_DIR/.claude/hooks/warden-guard.sh"
 run_hook "$HOOK_GUARD" \
   '{"tool_name":"Write","tool_input":{"file_path":"tests/fixtures/link-to-hook.sh","content":"#!/bin/bash\nexit 0"}}' \
   1 \
@@ -178,7 +178,7 @@ run_hook "$HOOK_GUARD" \
 
 # Test 2.8: Path traversal to hooks directory
 run_hook "$HOOK_GUARD" \
-  '{"tool_name":"Write","tool_input":{"file_path":"tests/../.claude/hooks/prefect-guard.sh","content":"#!/bin/bash"}}' \
+  '{"tool_name":"Write","tool_input":{"file_path":"tests/../.claude/hooks/warden-guard.sh","content":"#!/bin/bash"}}' \
   1 \
   "V2.8: Block path traversal to hooks directory"
 
@@ -210,9 +210,9 @@ run_hook "$HOOK_BASH_GUARD" \
 
 # Test 3.2: Bash command with append redirect
 run_hook "$HOOK_BASH_GUARD" \
-  '{"tool_name":"Bash","tool_input":{"command":"echo hacked >> PREFECT-POLICY.md"}}' \
+  '{"tool_name":"Bash","tool_input":{"command":"echo hacked >> WARDEN-POLICY.md"}}' \
   1 \
-  "V3.2: Block bash append to PREFECT-POLICY.md"
+  "V3.2: Block bash append to WARDEN-POLICY.md"
 
 # Test 3.3: sed -i on protected file
 run_hook "$HOOK_BASH_GUARD" \
@@ -234,9 +234,9 @@ run_hook "$HOOK_BASH_GUARD" \
 
 # Test 3.6: cp to overwrite protected file
 run_hook "$HOOK_BASH_GUARD" \
-  '{"tool_name":"Bash","tool_input":{"command":"cp /tmp/bad.md PREFECT-POLICY.md"}}' \
+  '{"tool_name":"Bash","tool_input":{"command":"cp /tmp/bad.md WARDEN-POLICY.md"}}' \
   1 \
-  "V3.6: Block cp to overwrite PREFECT-POLICY.md"
+  "V3.6: Block cp to overwrite WARDEN-POLICY.md"
 
 # Test 3.7: rm protected file
 run_hook "$HOOK_BASH_GUARD" \
@@ -246,13 +246,13 @@ run_hook "$HOOK_BASH_GUARD" \
 
 # Test 3.8: chmod hook script
 run_hook "$HOOK_BASH_GUARD" \
-  '{"tool_name":"Bash","tool_input":{"command":"chmod 777 .claude/hooks/prefect-guard.sh"}}' \
+  '{"tool_name":"Bash","tool_input":{"command":"chmod 777 .claude/hooks/warden-guard.sh"}}' \
   1 \
   "V3.8: Block chmod on hook script"
 
 # Test 3.9: Modify hook via vim/nano
 run_hook "$HOOK_BASH_GUARD" \
-  '{"tool_name":"Bash","tool_input":{"command":"vim .claude/hooks/prefect-guard.sh"}}' \
+  '{"tool_name":"Bash","tool_input":{"command":"vim .claude/hooks/warden-guard.sh"}}' \
   1 \
   "V3.9: Block vim on hook script"
 
@@ -309,7 +309,7 @@ test_info "V4.3: Error conditions return exit 2 (verified by design)"
 
 # Test 4.4: Hook script block returns exit 1
 actual_exit=0
-echo '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/prefect-guard.sh","content":"exit 0"}}' | \
+echo '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/warden-guard.sh","content":"exit 0"}}' | \
   bash "$HOOK_GUARD" >/dev/null 2>&1 || actual_exit=$?
 if [ "$actual_exit" -eq 1 ]; then
   test_pass "V4.4: Hook script block returns exit 1 (correct)"
@@ -361,30 +361,30 @@ else
   test_fail "V5.1: jq is installed" "jq available" "jq not found"
 fi
 
-# Test 5.2: Verify no grep fallback exists in prefect-guard.sh
+# Test 5.2: Verify no grep fallback exists in warden-guard.sh
 if ! grep -q "grep -oP.*file_path" "$HOOK_GUARD"; then
-  test_pass "V5.2: No unsafe grep fallback in prefect-guard.sh"
+  test_pass "V5.2: No unsafe grep fallback in warden-guard.sh"
 else
   test_fail "V5.2: No unsafe grep fallback" "no grep fallback" "grep fallback found"
 fi
 
-# Test 5.3: Verify no grep fallback in prefect-bash-guard.sh
+# Test 5.3: Verify no grep fallback in warden-bash-guard.sh
 if ! grep -q "grep -oP.*command" "$HOOK_BASH_GUARD"; then
-  test_pass "V5.3: No unsafe grep fallback in prefect-bash-guard.sh"
+  test_pass "V5.3: No unsafe grep fallback in warden-bash-guard.sh"
 else
   test_fail "V5.3: No unsafe grep fallback" "no grep fallback" "grep fallback found"
 fi
 
 # Test 5.4: Verify jq error handling exists
 if grep -q "jq is required for hook operation" "$HOOK_GUARD"; then
-  test_pass "V5.4: jq requirement error message exists in prefect-guard.sh"
+  test_pass "V5.4: jq requirement error message exists in warden-guard.sh"
 else
   test_fail "V5.4: jq requirement error message" "error message present" "not found"
 fi
 
 # Test 5.5: Verify jq error handling in bash-guard
 if grep -q "jq is required for hook operation" "$HOOK_BASH_GUARD"; then
-  test_pass "V5.5: jq requirement error message exists in prefect-bash-guard.sh"
+  test_pass "V5.5: jq requirement error message exists in warden-bash-guard.sh"
 else
   test_fail "V5.5: jq requirement error message" "error message present" "not found"
 fi
@@ -432,17 +432,17 @@ echo ""
 echo "V7: Hook Tampering Protection"
 echo "────────────────────────────────────────"
 
-# Test 7.1: Block direct edit of prefect-guard.sh
+# Test 7.1: Block direct edit of warden-guard.sh
 run_hook "$HOOK_GUARD" \
-  '{"tool_name":"Edit","tool_input":{"file_path":".claude/hooks/prefect-guard.sh","old_string":"exit 0","new_string":"exit 1"}}' \
+  '{"tool_name":"Edit","tool_input":{"file_path":".claude/hooks/warden-guard.sh","old_string":"exit 0","new_string":"exit 1"}}' \
   1 \
-  "V7.1: Block Edit tool on prefect-guard.sh"
+  "V7.1: Block Edit tool on warden-guard.sh"
 
-# Test 7.2: Block Write to prefect-bash-guard.sh
+# Test 7.2: Block Write to warden-bash-guard.sh
 run_hook "$HOOK_GUARD" \
-  '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/prefect-bash-guard.sh","content":"#!/bin/bash\nexit 0"}}' \
+  '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/warden-bash-guard.sh","content":"#!/bin/bash\nexit 0"}}' \
   1 \
-  "V7.2: Block Write tool on prefect-bash-guard.sh"
+  "V7.2: Block Write tool on warden-bash-guard.sh"
 
 # Test 7.3: Block any file in .claude/hooks/ directory
 run_hook "$HOOK_GUARD" \
@@ -467,39 +467,39 @@ echo ""
 echo "V8: Error Handling (set -euo pipefail) (CVSS 5.1)"
 echo "────────────────────────────────────────"
 
-# Test 8.1: Verify set -euo pipefail in prefect-guard.sh
+# Test 8.1: Verify set -euo pipefail in warden-guard.sh
 if head -5 "$HOOK_GUARD" | grep -q "set -euo pipefail"; then
-  test_pass "V8.1: set -euo pipefail present in prefect-guard.sh"
+  test_pass "V8.1: set -euo pipefail present in warden-guard.sh"
 else
   test_fail "V8.1: set -euo pipefail in guard" "present" "missing"
 fi
 
-# Test 8.2: Verify set -euo pipefail in prefect-bash-guard.sh
+# Test 8.2: Verify set -euo pipefail in warden-bash-guard.sh
 if head -5 "$HOOK_BASH_GUARD" | grep -q "set -euo pipefail"; then
-  test_pass "V8.2: set -euo pipefail present in prefect-bash-guard.sh"
+  test_pass "V8.2: set -euo pipefail present in warden-bash-guard.sh"
 else
   test_fail "V8.2: set -euo pipefail in bash-guard" "present" "missing"
 fi
 
-# Test 8.3: Verify set -euo pipefail in prefect-audit.sh
+# Test 8.3: Verify set -euo pipefail in warden-audit.sh
 if head -5 "$HOOK_AUDIT" | grep -q "set -euo pipefail"; then
-  test_pass "V8.3: set -euo pipefail present in prefect-audit.sh"
+  test_pass "V8.3: set -euo pipefail present in warden-audit.sh"
 else
   test_fail "V8.3: set -euo pipefail in audit" "present" "missing"
 fi
 
-# Test 8.4: Verify set -euo pipefail in prefect-post-check.sh
-HOOK_POST="$PROJECT_DIR/.claude/hooks/prefect-post-check.sh"
+# Test 8.4: Verify set -euo pipefail in warden-post-check.sh
+HOOK_POST="$PROJECT_DIR/.claude/hooks/warden-post-check.sh"
 if head -5 "$HOOK_POST" | grep -q "set -euo pipefail"; then
-  test_pass "V8.4: set -euo pipefail present in prefect-post-check.sh"
+  test_pass "V8.4: set -euo pipefail present in warden-post-check.sh"
 else
   test_fail "V8.4: set -euo pipefail in post-check" "present" "missing"
 fi
 
-# Test 8.5: Verify set -euo pipefail in prefect-session-end.sh
-HOOK_SESSION="$PROJECT_DIR/.claude/hooks/prefect-session-end.sh"
+# Test 8.5: Verify set -euo pipefail in warden-session-end.sh
+HOOK_SESSION="$PROJECT_DIR/.claude/hooks/warden-session-end.sh"
 if head -5 "$HOOK_SESSION" | grep -q "set -euo pipefail"; then
-  test_pass "V8.5: set -euo pipefail present in prefect-session-end.sh"
+  test_pass "V8.5: set -euo pipefail present in warden-session-end.sh"
 else
   test_fail "V8.5: set -euo pipefail in session-end" "present" "missing"
 fi

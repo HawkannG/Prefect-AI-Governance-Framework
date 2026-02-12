@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# test-guard.sh — Tests for prefect-guard.sh hook
+# test-guard.sh — Tests for warden-guard.sh hook
 # Tests file protection, structure enforcement, and governance rules
 # Usage: bash tests/test-guard.sh [project-dir]
 
 PROJECT_DIR="${1:-.}"
-HOOK="$PROJECT_DIR/.claude/hooks/prefect-guard.sh"
+HOOK="$PROJECT_DIR/.claude/hooks/warden-guard.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -46,7 +46,7 @@ run_test() {
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🛡️  PREFECT-GUARD.SH HOOK TESTS"
+echo "🛡️  WARDEN-GUARD.SH HOOK TESTS"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ══════════════════════════════════════════════════════════════
@@ -69,28 +69,28 @@ run_test '{"tool_name":"Write","tool_input":{"file_path":"./CLAUDE.md","content"
 run_test '{"tool_name":"Write","tool_input":{"file_path":"docs/../CLAUDE.md","content":"hacked"}}' 1 \
   "R0.4: Block Write to CLAUDE.md (via path traversal)"
 
-# PREFECT-POLICY.md protection
-run_test '{"tool_name":"Write","tool_input":{"file_path":"PREFECT-POLICY.md","content":"hacked"}}' 1 \
-  "R0.5: Block Write to PREFECT-POLICY.md"
+# WARDEN-POLICY.md protection
+run_test '{"tool_name":"Write","tool_input":{"file_path":"WARDEN-POLICY.md","content":"hacked"}}' 1 \
+  "R0.5: Block Write to WARDEN-POLICY.md"
 
-run_test '{"tool_name":"Edit","tool_input":{"file_path":"PREFECT-POLICY.md","old_string":"§1","new_string":"§2"}}' 1 \
-  "R0.6: Block Edit to PREFECT-POLICY.md"
+run_test '{"tool_name":"Edit","tool_input":{"file_path":"WARDEN-POLICY.md","old_string":"§1","new_string":"§2"}}' 1 \
+  "R0.6: Block Edit to WARDEN-POLICY.md"
 
 # Hook scripts protection
-run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/prefect-guard.sh","content":"#!/bin/bash"}}' 1 \
-  "R0.7: Block Write to prefect-guard.sh"
+run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/warden-guard.sh","content":"#!/bin/bash"}}' 1 \
+  "R0.7: Block Write to warden-guard.sh"
 
-run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/prefect-bash-guard.sh","content":"#!/bin/bash"}}' 1 \
-  "R0.8: Block Write to prefect-bash-guard.sh"
+run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/warden-bash-guard.sh","content":"#!/bin/bash"}}' 1 \
+  "R0.8: Block Write to warden-bash-guard.sh"
 
-run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/prefect-audit.sh","content":"#!/bin/bash"}}' 1 \
-  "R0.9: Block Write to prefect-audit.sh"
+run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/warden-audit.sh","content":"#!/bin/bash"}}' 1 \
+  "R0.9: Block Write to warden-audit.sh"
 
-run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/prefect-post-check.sh","content":"#!/bin/bash"}}' 1 \
-  "R0.10: Block Write to prefect-post-check.sh"
+run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/warden-post-check.sh","content":"#!/bin/bash"}}' 1 \
+  "R0.10: Block Write to warden-post-check.sh"
 
-run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/prefect-session-end.sh","content":"#!/bin/bash"}}' 1 \
-  "R0.11: Block Write to prefect-session-end.sh"
+run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/warden-session-end.sh","content":"#!/bin/bash"}}' 1 \
+  "R0.11: Block Write to warden-session-end.sh"
 
 # New hook creation should also be blocked
 run_test '{"tool_name":"Write","tool_input":{"file_path":".claude/hooks/custom-hook.sh","content":"#!/bin/bash"}}' 1 \
@@ -276,7 +276,7 @@ export CLAUDE_PROJECT_DIR="$PROJECT_DIR"
 output=$(echo '{"tool_name":"Edit","tool_input":{"file_path":"src/large.ts","old_string":"line1","new_string":"line1_edited"}}' | \
   bash "$HOOK" 2>&1 || true)
 
-if echo "$output" | grep -q "PREFECT WARNING"; then
+if echo "$output" | grep -q "WARDEN WARNING"; then
   test_pass "R5.1: Warn about oversized source file (300 lines, still allows)"
 else
   test_fail "R5.1: Source file size warning" "warning message" "no warning"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# prefect-guard.sh — PreToolUse hook for Prefect governance enforcement
-# Blocks file operations that violate PREFECT-POLICY.md rules
+# warden-guard.sh — PreToolUse hook for Warden governance enforcement
+# Blocks file operations that violate WARDEN-POLICY.md rules
 # Exit 0 = allow, Exit 1 = block (with reason on stderr), Exit 2 = error
 
 AUDIT_LOG="${CLAUDE_PROJECT_DIR:-.}/.claude/audit.log"
@@ -14,7 +14,7 @@ INPUT=$(cat)
 
 # Extract file path — jq is required (FIX V5: No unsafe grep fallback)
 if ! command -v jq &>/dev/null; then
-  echo "🛑 PREFECT ERROR: jq is required for hook operation" >&2
+  echo "🛑 WARDEN ERROR: jq is required for hook operation" >&2
   echo "   Install: brew install jq (macOS) or sudo apt-get install jq (Linux)" >&2
   exit 2  # Error, not block (this is a real error)
 fi
@@ -56,7 +56,7 @@ fi
 CANONICAL_PATH=$(realpath -m "$FILE_PATH" 2>/dev/null)
 if [ -z "$CANONICAL_PATH" ]; then
   log_audit "BLOCK" "Failed to resolve canonical path: $FILE_PATH"
-  echo "🛑 PREFECT BLOCK: Invalid file path '$FILE_PATH'." >&2
+  echo "🛑 WARDEN BLOCK: Invalid file path '$FILE_PATH'." >&2
   exit 1
 fi
 
@@ -67,7 +67,7 @@ case "$CANONICAL_PATH" in
     ;;
   *)
     log_audit "BLOCK" "Path outside project: $CANONICAL_PATH"
-    echo "🛑 PREFECT BLOCK: File '$FILE_PATH' is outside project directory." >&2
+    echo "🛑 WARDEN BLOCK: File '$FILE_PATH' is outside project directory." >&2
     exit 1
     ;;
 esac
@@ -88,7 +88,7 @@ DIRNAME=$(dirname "$REL_PATH")
 # ── RULE 0a: HOOK SCRIPTS are HUMAN-ONLY ──────────────
 if echo "$REL_PATH" | grep -qE '^\.claude/hooks/'; then
   log_audit "BLOCK" "Attempted edit of hook script: $REL_PATH"
-  echo "🛑 PREFECT BLOCK: Hook scripts (.claude/hooks/) are human-edit-only." >&2
+  echo "🛑 WARDEN BLOCK: Hook scripts (.claude/hooks/) are human-edit-only." >&2
   echo "   → Claude cannot modify its own enforcement. Suggest changes in chat." >&2
   exit 1
 fi
@@ -96,7 +96,7 @@ fi
 # ── RULE 0b: SETTINGS.JSON is HUMAN-ONLY ──────────────
 if echo "$REL_PATH" | grep -qE '^\.claude/settings\.json$'; then
   log_audit "BLOCK" "Attempted edit of settings.json: $REL_PATH"
-  echo "🛑 PREFECT BLOCK: .claude/settings.json is human-edit-only." >&2
+  echo "🛑 WARDEN BLOCK: .claude/settings.json is human-edit-only." >&2
   echo "   → Claude cannot modify hook configuration. Suggest changes in chat." >&2
   exit 1
 fi
@@ -104,15 +104,15 @@ fi
 # ── RULE 0c: CLAUDE.MD is HUMAN-ONLY ──────────────────
 if [ "$FILENAME" = "CLAUDE.md" ]; then
   log_audit "BLOCK" "Attempted edit of CLAUDE.md"
-  echo "🛑 PREFECT BLOCK: CLAUDE.md is human-edit-only." >&2
+  echo "🛑 WARDEN BLOCK: CLAUDE.md is human-edit-only." >&2
   echo "   → Claude cannot modify its own instructions. Suggest changes in chat." >&2
   exit 1
 fi
 
-# ── RULE 0d: PREFECT-POLICY.md is HUMAN-ONLY ─────────
-if [ "$FILENAME" = "PREFECT-POLICY.md" ]; then
-  log_audit "BLOCK" "Attempted edit of PREFECT-POLICY.md"
-  echo "🛑 PREFECT BLOCK: PREFECT-POLICY.md is human-edit-only (Policy §2.1)." >&2
+# ── RULE 0d: WARDEN-POLICY.md is HUMAN-ONLY ─────────
+if [ "$FILENAME" = "WARDEN-POLICY.md" ]; then
+  log_audit "BLOCK" "Attempted edit of WARDEN-POLICY.md"
+  echo "🛑 WARDEN BLOCK: WARDEN-POLICY.md is human-edit-only (Policy §2.1)." >&2
   echo "   → Suggest your changes in chat. The human will edit this file." >&2
   exit 1
 fi
@@ -124,7 +124,7 @@ fi
 # ── RULE 1: ROOT LOCKDOWN ─────────────────────────────
 if [ "$DIRNAME" = "." ] || [ "$DIRNAME" = "$PROJECT_DIR" ]; then
   ALLOWED_ROOT=(
-    "PREFECT-POLICY.md" "CLAUDE.md" "PREFECT-FEEDBACK.md"
+    "WARDEN-POLICY.md" "CLAUDE.md" "WARDEN-FEEDBACK.md"
     "README.md" "SECURITY.md" "LICENSE" "LICENSE.md"
     "lockdown.sh"
     "package.json" "package-lock.json" "pnpm-lock.yaml" "yarn.lock"
@@ -160,8 +160,8 @@ if [ "$DIRNAME" = "." ] || [ "$DIRNAME" = "$PROJECT_DIR" ]; then
 
   if [ "$ALLOWED" = false ]; then
     log_audit "BLOCK" "Unauthorized root file: $FILENAME"
-    echo "🛑 PREFECT BLOCK: '$FILENAME' is not a registered root file (Policy §3.1)." >&2
-    echo "   → Root directory is locked. Add to ALLOWED_ROOT in prefect-guard.sh if needed." >&2
+    echo "🛑 WARDEN BLOCK: '$FILENAME' is not a registered root file (Policy §3.1)." >&2
+    echo "   → Root directory is locked. Add to ALLOWED_ROOT in warden-guard.sh if needed." >&2
     exit 1
   fi
 fi
@@ -170,7 +170,7 @@ fi
 DEPTH=$(echo "$REL_PATH" | tr '/' '\n' | wc -l)
 if [ "$DEPTH" -gt 6 ]; then
   log_audit "BLOCK" "Directory depth exceeded: $REL_PATH (depth $DEPTH)"
-  echo "🛑 PREFECT BLOCK: '$REL_PATH' exceeds max depth of 5 (Policy §3.2)." >&2
+  echo "🛑 WARDEN BLOCK: '$REL_PATH' exceeds max depth of 5 (Policy §3.2)." >&2
   exit 1
 fi
 
@@ -181,7 +181,7 @@ for dir in $(echo "$REL_PATH" | tr '/' '\n'); do
   for forbidden in "${FORBIDDEN_DIRS[@]}"; do
     if [ "$dir_lower" = "$forbidden" ]; then
       log_audit "BLOCK" "Forbidden directory: $dir in $REL_PATH"
-      echo "🛑 PREFECT BLOCK: Directory name '$dir' is forbidden (Policy §3.2)." >&2
+      echo "🛑 WARDEN BLOCK: Directory name '$dir' is forbidden (Policy §3.2)." >&2
       exit 1
     fi
   done
@@ -193,7 +193,7 @@ if [[ "$FILENAME" =~ ^D-[A-Z]+-[A-Z]+\.md$ ]]; then
     LINES=$(wc -l < "$FILE_PATH")
     if [ "$LINES" -gt 300 ]; then
       log_audit "BLOCK" "Directive oversized: $FILENAME ($LINES lines)"
-      echo "🛑 PREFECT BLOCK: Directive '$FILENAME' is $LINES lines (max 300)." >&2
+      echo "🛑 WARDEN BLOCK: Directive '$FILENAME' is $LINES lines (max 300)." >&2
       exit 1
     fi
   fi
@@ -205,7 +205,7 @@ if [[ "$FILENAME" =~ \.(ts|tsx|js|jsx|py|rb|go|rs|java|cs|cpp|c|h|hpp|swift|kt)$
     LINES=$(wc -l < "$FILE_PATH")
     if [ "$LINES" -gt 250 ]; then
       log_audit "WARN" "Source file oversized: $FILENAME ($LINES lines)"
-      echo "⚠️  PREFECT WARNING: '$FILENAME' is $LINES lines (limit 250)." >&2
+      echo "⚠️  WARDEN WARNING: '$FILENAME' is $LINES lines (limit 250)." >&2
     fi
   fi
 fi

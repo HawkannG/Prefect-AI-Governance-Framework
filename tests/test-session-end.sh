@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# test-session-end.sh — Tests for prefect-session-end.sh hook
+# test-session-end.sh — Tests for warden-session-end.sh hook
 # Tests session-end audit and summary generation
 # Usage: bash tests/test-session-end.sh [project-dir]
 
 PROJECT_DIR="${1:-.}"
-HOOK="$PROJECT_DIR/.claude/hooks/prefect-session-end.sh"
+HOOK="$PROJECT_DIR/.claude/hooks/warden-session-end.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -30,7 +30,7 @@ test_fail() {
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🏁 PREFECT-SESSION-END.SH HOOK TESTS"
+echo "🏁 WARDEN-SESSION-END.SH HOOK TESTS"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ══════════════════════════════════════════════════════════════
@@ -165,7 +165,7 @@ mkdir -p "$TEST_PROJECT"/{src,docs}
 
 # Add only allowed files
 touch "$TEST_PROJECT/CLAUDE.md"
-touch "$TEST_PROJECT/PREFECT-POLICY.md"
+touch "$TEST_PROJECT/WARDEN-POLICY.md"
 touch "$TEST_PROJECT/README.md"
 touch "$TEST_PROJECT/package.json"
 

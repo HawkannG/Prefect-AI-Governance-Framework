@@ -1,4 +1,4 @@
-# PREFECT-POLICY.md — Constitution for AI-Assisted Project Governance
+# WARDEN-POLICY.md — Constitution for AI-Assisted Project Governance
 
 > **Version:** 2.0
 > **Type:** Constitution (highest governance authority)
@@ -19,14 +19,14 @@ AI coding assistants are powerful but stateless. They forget rules, create drift
 | **Active governance** | Make the AI confirm before acting | CLAUDE.md checklist + recursive output rules |
 | **Hard governance** | Prevent violations mechanically | Linters, CI checks, pre-commit hooks |
 
-Soft governance alone is insufficient. AI can choose to ignore documentation. This policy is the foundation, but enforcement tooling (folderslint, ls-lint, CI pipeline checks, and eventually the Prefect audit tool) is the mechanism that makes it stick.
+Soft governance alone is insufficient. AI can choose to ignore documentation. This policy is the foundation, but enforcement tooling (folderslint, ls-lint, CI pipeline checks, and eventually the Warden audit tool) is the mechanism that makes it stick.
 
 ---
 
 ## 1. Governance Hierarchy
 
 ```
-PREFECT-POLICY.md                    ← Constitution (this file)
+WARDEN-POLICY.md                    ← Constitution (this file)
 │                                       Human-owned. Defines all policy areas.
 │                                       AI may NEVER edit.
 │
@@ -35,7 +35,7 @@ PREFECT-POLICY.md                    ← Constitution (this file)
 │                                       References directives by policy area.
 │                                       Human-owned. AI may suggest changes.
 │
-├── PREFECT-FEEDBACK.md               ← Feedback Loop
+├── WARDEN-FEEDBACK.md               ← Feedback Loop
 │                                       AI writes findings here.
 │                                       Human reviews and adjusts policy.
 │                                       The mechanism for self-improvement.
@@ -78,7 +78,7 @@ Policy Areas are the top-level domains of governance. They are defined ONLY in t
 
 - Maximum 7 Policy Areas (more than 7 becomes unmanageable)
 - Each Policy Area has a max directive count to prevent sprawl
-- To propose a new Policy Area, AI writes to PREFECT-FEEDBACK.md with type "Policy Gap"
+- To propose a new Policy Area, AI writes to WARDEN-FEEDBACK.md with type "Policy Gap"
 - Human evaluates, and if approved, manually adds the area to this table
 - Removing a Policy Area requires archiving all its directives first
 
@@ -133,7 +133,7 @@ One paragraph: what this directive governs and why.
 ### 3.5 Creation Protocol
 
 1. AI identifies a governance need not covered by existing directives
-2. AI writes a proposal to PREFECT-FEEDBACK.md (type: "Directive Proposal")
+2. AI writes a proposal to WARDEN-FEEDBACK.md (type: "Directive Proposal")
 3. Human reviews and confirms the Policy Area parent
 4. Human verifies the Policy Area hasn't hit its max directive count
 5. AI drafts the directive with proper header and structure
@@ -154,9 +154,9 @@ Directives often interact (e.g., a model change usually means an API contract ch
 
 The project root may ONLY contain:
 
-- `PREFECT-POLICY.md` (this file)
+- `WARDEN-POLICY.md` (this file)
 - `CLAUDE.md` (operating instructions)
-- `PREFECT-FEEDBACK.md` (feedback loop)
+- `WARDEN-FEEDBACK.md` (feedback loop)
 - `README.md` (project overview)
 - `SECURITY.md` (security model documentation)
 - `LICENSE` or `LICENSE.md` (project license)
@@ -177,9 +177,9 @@ The project root may ONLY contain:
 
 | File | Max Lines | When Exceeded |
 |------|-----------|---------------|
-| `PREFECT-POLICY.md` | 400 | Tighten language. Never expand to compensate. |
+| `WARDEN-POLICY.md` | 400 | Tighten language. Never expand to compensate. |
 | `CLAUDE.md` | 80 | Move detail into directives. CLAUDE.md is an index. |
-| `PREFECT-FEEDBACK.md` | No limit, but max 20 open entries | Incorporate feedback, then mark resolved. |
+| `WARDEN-FEEDBACK.md` | No limit, but max 20 open entries | Incorporate feedback, then mark resolved. |
 | Any `D-*.md` | 300 | Split into two directives (requires human approval + Policy Area capacity). |
 | Any source code file | 250 | Refactor into smaller modules. |
 
@@ -256,7 +256,7 @@ Composite health metric (0 = perfect, 100 = ungovernable):
 ### 7.5 Feedback Lifecycle
 
 ```
-AI Detects Issue → Writes to PREFECT-FEEDBACK.md
+AI Detects Issue → Writes to WARDEN-FEEDBACK.md
         ↓
 Human Reviews (next session or scheduled)
         ↓
@@ -285,7 +285,7 @@ Next Epoch: Did drift score decrease?
 ## 9. Getting Started
 
 ### New Project
-1. Copy PREFECT-POLICY.md, CLAUDE.md template, PREFECT-FEEDBACK.md to root
+1. Copy WARDEN-POLICY.md, CLAUDE.md template, WARDEN-FEEDBACK.md to root
 2. Customize Policy Areas in Section 2
 3. Create initial directives for each active area
 4. Configure folderslint / ls-lint for hard enforcement
@@ -293,7 +293,7 @@ Next Epoch: Did drift score decrease?
 
 ### Existing (Messy) Project
 1. Place this file at root
-2. Create CLAUDE.md: "Read PREFECT-POLICY.md. Audit this project. Write drift report to PREFECT-FEEDBACK.md."
+2. Create CLAUDE.md: "Read WARDEN-POLICY.md. Audit this project. Write drift report to WARDEN-FEEDBACK.md."
 3. Clean root directory first — identify unauthorized .md files
 4. Map existing docs to Policy Areas — merge into directives
 5. Document current state (what IS), not desired state
@@ -301,4 +301,4 @@ Next Epoch: Did drift score decrease?
 
 ---
 
-*Changes to this constitution require a PREFECT-FEEDBACK.md entry and human approval.*
+*Changes to this constitution require a WARDEN-FEEDBACK.md entry and human approval.*

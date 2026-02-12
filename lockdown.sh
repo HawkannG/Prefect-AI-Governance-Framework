@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# lockdown.sh — Toggle write protection on Prefect governance files
+# lockdown.sh — Toggle write protection on Warden governance files
 # Usage: ./lockdown.sh lock | unlock | status
 
 set -euo pipefail
 
 GOVERNANCE_FILES=(
   "CLAUDE.md"
-  "PREFECT-POLICY.md"
-  ".claude/hooks/prefect-guard.sh"
-  ".claude/hooks/prefect-bash-guard.sh"
-  ".claude/hooks/prefect-post-check.sh"
-  ".claude/hooks/prefect-session-end.sh"
-  ".claude/hooks/prefect-audit.sh"
+  "WARDEN-POLICY.md"
+  ".claude/hooks/warden-guard.sh"
+  ".claude/hooks/warden-bash-guard.sh"
+  ".claude/hooks/warden-post-check.sh"
+  ".claude/hooks/warden-session-end.sh"
+  ".claude/hooks/warden-audit.sh"
   ".claude/settings.json"
 )
 

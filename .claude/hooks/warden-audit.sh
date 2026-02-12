@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail  # FIX V8: Exit on error, undefined var, pipe failure
-# prefect-audit.sh — Automated Prefect Drift Score Calculator
-# Run: bash .claude/hooks/prefect-audit.sh [project-dir]
+# warden-audit.sh — Automated Warden Drift Score Calculator
+# Run: bash .claude/hooks/warden-audit.sh [project-dir]
 # Outputs: Drift score (0-100, lower = healthier) + detailed breakdown
 #
 # Scoring dimensions (each 0-12.5 points, total max 100):
@@ -43,7 +43,7 @@ add_score() {
 PROJECT_NAME=$(basename "$(cd "$PROJECT_DIR" && pwd)" 2>/dev/null || basename "$PROJECT_DIR")
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 PREFECT GOVERNANCE AUDIT"
+echo "📊 WARDEN GOVERNANCE AUDIT"
 echo "   Project: $PROJECT_NAME"
 echo "   Date:    $(date '+%Y-%m-%d %H:%M')"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -56,7 +56,7 @@ for f in "$PROJECT_DIR"/*; do
   [ ! -f "$f" ] && continue
   fname=$(basename "$f")
   case "$fname" in
-    PREFECT-POLICY.md|CLAUDE.md|PREFECT-FEEDBACK.md|README.md|SECURITY.md|LICENSE*) ;;
+    WARDEN-POLICY.md|CLAUDE.md|WARDEN-FEEDBACK.md|README.md|SECURITY.md|LICENSE*) ;;
     lockdown.sh) ;;
     D-*.md) ;;
     package.json|package-lock.json|pnpm-lock.yaml|yarn.lock) ;;
@@ -196,7 +196,7 @@ fi
 # ── DIMENSION 5: Governance Coverage ───────────────────
 echo ""
 echo "5. GOVERNANCE COVERAGE"
-REQUIRED_FILES=("CLAUDE.md" "README.md" "PREFECT-POLICY.md")
+REQUIRED_FILES=("CLAUDE.md" "README.md" "WARDEN-POLICY.md")
 MISSING_GOV=0
 for rf in "${REQUIRED_FILES[@]}"; do
   if [ ! -f "$PROJECT_DIR/$rf" ]; then
@@ -216,8 +216,8 @@ fi
 # ── DIMENSION 6: Feedback Backlog ──────────────────────
 echo ""
 echo "6. FEEDBACK BACKLOG"
-if [ -f "$PROJECT_DIR/PREFECT-FEEDBACK.md" ]; then
-  OPEN_FB=$(grep -c "Status: Open" "$PROJECT_DIR/PREFECT-FEEDBACK.md" 2>/dev/null || echo 0)
+if [ -f "$PROJECT_DIR/WARDEN-FEEDBACK.md" ]; then
+  OPEN_FB=$(grep -c "Status: Open" "$PROJECT_DIR/WARDEN-FEEDBACK.md" 2>/dev/null || echo 0)
   if [ "$OPEN_FB" -eq 0 ]; then
     add_score 0 12 "No open feedback items"
   elif [ "$OPEN_FB" -le 5 ]; then

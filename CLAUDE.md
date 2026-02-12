@@ -12,12 +12,12 @@
 @docs/AI-UAT-CHECKLIST.md
 
 ## Absolute Rules
-- NEVER edit PREFECT-POLICY.md — suggest changes in chat, human edits
+- NEVER edit WARDEN-POLICY.md — suggest changes in chat, human edits
 - NEVER edit CLAUDE.md — suggest changes in chat, human edits
 - NEVER edit anything in .claude/hooks/ — suggest changes in chat, human edits
 - NEVER edit .claude/settings.json — suggest changes in chat, human edits
 - NEVER use bash commands to write/modify/delete protected files (the above four rules apply to ALL tools, not just Write/Edit)
-- NEVER create files at project root unless registered in prefect-guard.sh
+- NEVER create files at project root unless registered in warden-guard.sh
 - NEVER create directories named temp, misc, old, backup, scratch, junk
 - NEVER exceed 5 directory levels from root
 - NEVER add dependencies without documenting in DECISIONS section of ARCHITECTURE.md
@@ -76,7 +76,7 @@ When designing data models, flag any personal data fields and document the legal
 | "Approved" / "Build it" | Enter BUILD. Follow plan exactly. |
 | "Check it" | Enter VERIFY. Run drift checks + tests. |
 | "Ship it" | Enter CLOSE. Update docs, write handoff. |
-| "Prefect check" | Re-read governance. Confirm constraints. |
+| "Warden check" | Re-read governance. Confirm constraints. |
 | "Wrap up" | Run CLOSE + session summary. |
 
 ## Backend Implementation Order
@@ -112,15 +112,15 @@ This order is proven. Do not deviate.
 ## Session Protocol
 **Start:** Read this file → Read `docs/SESSION-LOG.md` (if exists) → State current phase + today's task
 **Mid-session:** Every 5 file changes, verify no drift
-**End:** Update changelog → Write handoff → Run `bash .claude/hooks/prefect-audit.sh`
-**Context recovery:** "prefect check" → re-read this file + directives, confirm constraints
+**End:** Update changelog → Write handoff → Run `bash .claude/hooks/warden-audit.sh`
+**Context recovery:** "warden check" → re-read this file + directives, confirm constraints
 
 ## Forbidden Patterns
 - Do not create utility/helper dumping-ground files — find the proper module
 - Do not put source files at directory root — always in a subdirectory
 - Do not write "we'll add tests later" — tests ship with the feature
 - Do not install packages without plan approval
-- Do not create new .md governance files at root — per PREFECT-POLICY.md §1.2
+- Do not create new .md governance files at root — per WARDEN-POLICY.md §1.2
 - Do not implement features beyond what test cases describe — no "helpful" extras
 - Do not edit files owned by another parallel Claude instance — check your plan
 

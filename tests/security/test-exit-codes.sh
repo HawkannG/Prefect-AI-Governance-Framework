@@ -26,14 +26,14 @@ teardown() {
 run_guard_hook() {
   local file_path="$1"
   echo "{\"tool\":\"Edit\",\"tool_input\":{\"file_path\":\"$file_path\"}}" | \
-    CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1
+    CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1
   echo $?
 }
 
 run_bash_hook() {
   local command="$1"
   echo "{\"tool\":\"Bash\",\"tool_input\":{\"command\":\"$command\"}}" | \
-    CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-bash-guard.sh >/dev/null 2>&1
+    CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-bash-guard.sh >/dev/null 2>&1
   echo $?
 }
 
@@ -104,7 +104,7 @@ test_error_exit_code() {
 
   # Test with invalid JSON (should cause hook error)
   echo "invalid json" | \
-    CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1
+    CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1
   local result=$?
 
   if [ "$result" -eq 0 ]; then

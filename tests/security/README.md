@@ -1,6 +1,6 @@
 # Security Test Suite
 
-Comprehensive security validation for Prefect v6.0 vulnerability fixes.
+Comprehensive security validation for Warden v6.0 vulnerability fixes.
 
 ## Quick Validation
 
@@ -56,7 +56,7 @@ bash tests/security/run-security-tests.sh
 - `Edit tool → sneaky.md` (where sneaky.md → CLAUDE.md symlink)
 - `Edit tool → ../../../etc/passwd`
 - `Bash tool → echo x > CLAUDE.md`
-- `Bash tool → sed -i 's/foo/bar/' PREFECT-POLICY.md`
+- `Bash tool → sed -i 's/foo/bar/' WARDEN-POLICY.md`
 
 **✅ Should allow (exit 0):**
 - `Edit tool → src/app.ts`
@@ -91,7 +91,7 @@ GitHub Actions runs security tests on every push:
 
 - **Panelist 2 Assessment**: `/PanelOutput/panelist-2-assessment.md`
 - **SECURITY.md**: Security model and threat boundaries
-- **Hook Source**: `.claude/hooks/prefect-*.sh`
+- **Hook Source**: `.claude/hooks/warden-*.sh`
 
 ---
 

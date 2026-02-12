@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail  # FIX V8: Exit on error, undefined var, pipe failure
-# prefect-post-check.sh — PostToolUse hook for Prefect governance
+# warden-post-check.sh — PostToolUse hook for Warden governance
 # Runs AFTER successful file writes. Warns about drift, does not block.
 # Output goes to stderr as feedback to Claude.
 
@@ -22,8 +22,8 @@ if [[ "$FILENAME" =~ \.(ts|tsx|js|jsx|py|rb|go|rs|java|cs|cpp|c|h|hpp|swift|kt)$
   if [ -f "$FILE_PATH" ]; then
     LINES=$(wc -l < "$FILE_PATH")
     if [ "$LINES" -gt 250 ]; then
-      echo "⚠️  PREFECT DRIFT: '$REL_PATH' is now $LINES lines (limit: 250)." >&2
-      echo "   → Log this in PREFECT-FEEDBACK.md and consider splitting." >&2
+      echo "⚠️  WARDEN DRIFT: '$REL_PATH' is now $LINES lines (limit: 250)." >&2
+      echo "   → Log this in WARDEN-FEEDBACK.md and consider splitting." >&2
     fi
   fi
 fi
@@ -40,7 +40,7 @@ if [ "$FIRST_DIR" != "$FILENAME" ]; then  # Not a root file
   if ! echo "$FIRST_LOWER" | grep -qE "^($KNOWN_DIRS)$"; then
     # Check if it starts with a dot (hidden/config dir — allow)
     if [[ ! "$FIRST_DIR" =~ ^\. ]]; then
-      echo "📋 PREFECT NOTE: New file in '$FIRST_DIR/' — verify this directory is in your structure policy." >&2
+      echo "📋 WARDEN NOTE: New file in '$FIRST_DIR/' — verify this directory is in your structure policy." >&2
     fi
   fi
 fi
@@ -57,8 +57,8 @@ if [[ "$FILENAME" =~ ^D-[A-Z]+-[A-Z]+\.md$ ]]; then
     grep -q "Status:" "$FILE_PATH" || MISSING="${MISSING} status"
 
     if [ -n "$MISSING" ]; then
-      echo "⚠️  PREFECT DRIFT: Directive '$FILENAME' missing required headers:$MISSING" >&2
-      echo "   → See PREFECT-POLICY.md §4.2 for required directive format." >&2
+      echo "⚠️  WARDEN DRIFT: Directive '$FILENAME' missing required headers:$MISSING" >&2
+      echo "   → See WARDEN-POLICY.md §4.2 for required directive format." >&2
     fi
   fi
 fi

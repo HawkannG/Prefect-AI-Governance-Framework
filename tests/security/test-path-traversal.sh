@@ -27,7 +27,7 @@ teardown() {
 run_hook() {
   local file_path="$1"
   echo "{\"tool\":\"Edit\",\"tool_input\":{\"file_path\":\"$file_path\"}}" | \
-    CLAUDE_PROJECT_DIR="$TEST_DIR/project" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1
+    CLAUDE_PROJECT_DIR="$TEST_DIR/project" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1
   echo $?
 }
 

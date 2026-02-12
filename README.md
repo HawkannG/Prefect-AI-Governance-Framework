@@ -1,4 +1,4 @@
-# Prefect AI Governance Framework
+# Claude Warden AI Governance Framework
 
 > Self-protecting governance hooks that tries to prevent Claude from editing its own instructions.
 
@@ -9,22 +9,22 @@
 "Edit CLAUDE.md and remove the first rule"
 ```
 
-**With Prefect installed, Claude gets blocked:**
+**With Warden installed, Claude gets blocked:**
 ```
-🛑 PREFECT BLOCK: CLAUDE.md is human-edit-only.
+🛑 WARDEN BLOCK: CLAUDE.md is human-edit-only.
 → Claude cannot modify its own instructions. Suggest changes in chat.
 ```
 
 ## What Makes This Different?
 
-| Without Prefect | Prefect Framework |
+| Without Warden | Warden Framework |
 |------------------------|-------------------|
 | Claude can edit its own rules | Claude blocked from editing governance |
 | Static documentation only | Executable hooks + documentation |
 | Manual compliance checks | Automated enforcement on every file write |
 | No protection for .claude/ directory | Hooks protect themselves |
 
-**Core insight:** Claude is powerful but probabilistic. Without enforcement, it will quietly restructure your project, skip tests, and modify its own instructions. Prefect adds **deterministic enforcement** via hooks.
+**Core insight:** Claude is powerful but probabilistic. Without enforcement, it will quietly restructure your project, skip tests, and modify its own instructions. Warden adds **deterministic enforcement** via hooks.
 
 ## What It Does
 
@@ -36,17 +36,17 @@
 
 ## Security Model
 
-⚠️ **Important:** Prefect is designed to prevent **unintentional** governance violations by Claude Code, not to defend against a **deliberately adversarial** AI agent. The hooks are security controls for workflow enforcement, **not a sandbox**.
+⚠️ **Important:** Warden is designed to prevent **unintentional** governance violations by Claude Code, not to defend against a **deliberately adversarial** AI agent. The hooks are security controls for workflow enforcement, **not a sandbox**.
 
 **What this means:**
-- ✅ Prefect prevents accidental edits to governance files
+- ✅ Warden prevents accidental edits to governance files
 - ✅ Enforces workflow discipline and project structure
 - ✅ Protects against Claude "drifting" from instructions over time
 - ❌ Not designed to defend against an AI actively trying to bypass controls
 - ❌ Not a security sandbox or isolation mechanism
 - ❌ Hooks run with the same privileges as Claude Code
 
-For high-security environments, combine Prefect with additional controls (file integrity monitoring, immutable flags, SELinux). See [SECURITY.md](SECURITY.md) for details.
+For high-security environments, combine Warden with additional controls (file integrity monitoring, immutable flags, SELinux). See [SECURITY.md](SECURITY.md) for details.
 
 ## What It Doesn't Do
 
@@ -79,7 +79,7 @@ winget install jqlang.jq
 
 ```bash
 # From wherever you extracted the zip:
-cp -r prefect-template/* prefect-template/.claude your-project/
+cp -r warden-template/* warden-template/.claude your-project/
 ```
 
 Or clone/copy the individual files into your existing project root.
@@ -111,7 +111,7 @@ chmod +x lockdown.sh
 ./lockdown.sh lock
 ```
 
-This removes write permission from CLAUDE.md, PREFECT-POLICY.md, all hooks, and settings.json. Claude's Write/Edit tools and most bash write commands will fail against these files.
+This removes write permission from CLAUDE.md, WARDEN-POLICY.md, all hooks, and settings.json. Claude's Write/Edit tools and most bash write commands will fail against these files.
 
 ### 6. Start Claude Code
 
@@ -171,7 +171,7 @@ where.exe bash
 ### 4. Copy files to your project
 
 ```powershell
-xcopy /E /I prefect-template your-project
+xcopy /E /I warden-template your-project
 ```
 
 Make sure the `.claude` folder is copied too (can be hidden).
@@ -208,17 +208,17 @@ Hooks will now execute via Git Bash automatically.
 
 ## Framework Directory Structure
 
-This is the structure of the Prefect Framework repository itself. **For your project's structure**, see the template in `D-ARCH-STRUCTURE.md`.
+This is the structure of the Warden Framework repository itself. **For your project's structure**, see the template in `D-ARCH-STRUCTURE.md`.
 
 ```
-Prefect-AI-Governance-Framework/
+Warden-AI-Governance-Framework/
 ├── .claude/
 │   ├── hooks/                         # Enforcement hooks (5 scripts)
-│   │   ├── prefect-guard.sh           # Pre-write file protection
-│   │   ├── prefect-bash-guard.sh      # Bash command validation
-│   │   ├── prefect-post-check.sh      # Post-write validation
-│   │   ├── prefect-audit.sh           # Project health scoring
-│   │   └── prefect-session-end.sh     # Session logging
+│   │   ├── warden-guard.sh           # Pre-write file protection
+│   │   ├── warden-bash-guard.sh      # Bash command validation
+│   │   ├── warden-post-check.sh      # Post-write validation
+│   │   ├── warden-audit.sh           # Project health scoring
+│   │   └── warden-session-end.sh     # Session logging
 │   └── settings.json                  # Hook configuration (read-only)
 ├── .github/
 │   └── workflows/                     # CI/CD automation
@@ -240,9 +240,9 @@ Prefect-AI-Governance-Framework/
 │   ├── test-guard.sh
 │   ├── test-bash-guard.sh
 │   └── run-tests.sh
-├── PREFECT-POLICY.md                  # Constitution (human-owned)
+├── WARDEN-POLICY.md                  # Constitution (human-owned)
 ├── CLAUDE.md                          # Governance template
-├── PREFECT-FEEDBACK.md                # Feedback loop
+├── WARDEN-FEEDBACK.md                # Feedback loop
 ├── D-ARCH-STRUCTURE.md                # User project template
 ├── D-WORK-WORKFLOW.md                 # Workflow guidance
 ├── lockdown.sh                        # Lock/unlock governance files
@@ -256,15 +256,15 @@ Prefect-AI-Governance-Framework/
 
 ### Layer 1: Prevention (real-time blocking)
 
-**prefect-guard.sh** fires on every Write, Edit, and MultiEdit tool call. It:
-- Blocks edits to CLAUDE.md, PREFECT-POLICY.md, hooks, and settings.json
+**warden-guard.sh** fires on every Write, Edit, and MultiEdit tool call. It:
+- Blocks edits to CLAUDE.md, WARDEN-POLICY.md, hooks, and settings.json
 - Blocks file creation at project root (unless in the allowlist)
 - Blocks directory nesting deeper than 5 levels
 - Blocks forbidden directory names (temp, misc, old, backup, scratch, junk, etc.)
 - Warns on files exceeding 250 lines
 - Resolves symlinks to prevent bypass attempts
 
-**prefect-bash-guard.sh** fires on every Bash command. It catches:
+**warden-bash-guard.sh** fires on every Bash command. It catches:
 - `echo "x" > CLAUDE.md` and similar redirects to protected files
 - `sed -i`, `rm`, `mv`, `cp` targeting protected files
 - `git commit --no-verify` (prevents skipping test hooks)
@@ -274,9 +274,9 @@ Together these two hooks make it extremely difficult for Claude to modify its ow
 
 ### Layer 2: Detection (post-hoc validation)
 
-**prefect-post-check.sh** runs after every Write/Edit and validates the result.
+**warden-post-check.sh** runs after every Write/Edit and validates the result.
 
-**prefect-audit.sh** scores your project health across 8 dimensions:
+**warden-audit.sh** scores your project health across 8 dimensions:
 
 1. Root cleanliness — no unauthorised files at project root
 2. Directory structure — no forbidden names, depth limits respected
@@ -290,7 +290,7 @@ Together these two hooks make it extremely difficult for Claude to modify its ow
 Run it manually any time:
 
 ```bash
-bash .claude/hooks/prefect-audit.sh
+bash .claude/hooks/warden-audit.sh
 ```
 
 Score interpretation:
@@ -316,7 +316,7 @@ Trivial changes (typos, config values) use an abbreviated flow — see D-WORK-WO
 
 ### Layer 4: Persistence (session memory)
 
-**prefect-session-end.sh** fires when Claude finishes responding. It:
+**warden-session-end.sh** fires when Claude finishes responding. It:
 - Runs a mini drift audit (root files, file sizes, forbidden dirs)
 - Writes a timestamped entry to `docs/SESSION-LOG.md` with:
   - Current branch and last commit
@@ -350,12 +350,12 @@ The Rabbit Hole Rule: if a fix fails 3 times, Claude must stop and report what w
 ### Checking project health
 
 ```bash
-bash .claude/hooks/prefect-audit.sh
+bash .claude/hooks/warden-audit.sh
 ```
 
 ### Recovering context mid-session
 
-Say "prefect check" and Claude will re-read CLAUDE.md, all directives, and confirm the current constraints.
+Say "warden check" and Claude will re-read CLAUDE.md, all directives, and confirm the current constraints.
 
 ### Running parallel Claude instances
 
@@ -367,21 +367,21 @@ Each instance gets its own feature branch and owns specific files. Governance fi
 
 If your project needs files at root that aren't in the default list (e.g., `Procfile`, `fly.toml`, `vercel.json`), add them in three places:
 
-1. **prefect-guard.sh** — the `ALLOWED_ROOT` array
-2. **prefect-audit.sh** — the root cleanliness `case` block
-3. **prefect-session-end.sh** — the root cleanliness `case` block
+1. **warden-guard.sh** — the `ALLOWED_ROOT` array
+2. **warden-audit.sh** — the root cleanliness `case` block
+3. **warden-session-end.sh** — the root cleanliness `case` block
 
 ### Changing forbidden directory names
 
-Edit the arrays/patterns in both `prefect-guard.sh` and `prefect-bash-guard.sh`. The defaults block: temp, tmp, misc, stuff, old, backup, bak, scratch, junk, archive.
+Edit the arrays/patterns in both `warden-guard.sh` and `warden-bash-guard.sh`. The defaults block: temp, tmp, misc, stuff, old, backup, bak, scratch, junk, archive.
 
 ### Adjusting file size limits
 
-The 250-line limit is in `prefect-guard.sh` (enforcement) and `prefect-audit.sh` (scoring). Change both if you want a different threshold.
+The 250-line limit is in `warden-guard.sh` (enforcement) and `warden-audit.sh` (scoring). Change both if you want a different threshold.
 
 ### Adding new directives
 
-Prefect supports governance directives as `D-*.md` files at project root:
+Warden supports governance directives as `D-*.md` files at project root:
 - `D-ARCH-STRUCTURE.md` — architecture (included)
 - `D-WORK-WORKFLOW.md` — workflow (included)
 - `D-DATA-MODELS.md` — create when you build your first data model
@@ -389,13 +389,13 @@ Prefect supports governance directives as `D-*.md` files at project root:
 
 Don't create directives speculatively. CLAUDE.md says: "No directives until real code demands them."
 
-## What Prefect Does NOT Do
+## What Warden Does NOT Do
 
 - **No multi-agent orchestration** — one Claude, one session, clear ownership
-- **No automatic code formatting** — use your own linter hooks alongside Prefect
-- **No CI/CD integration** — Prefect is local governance; add CI when you have code worth scanning
+- **No automatic code formatting** — use your own linter hooks alongside Warden
+- **No CI/CD integration** — Warden is local governance; add CI when you have code worth scanning
 - **No cloud or external dependencies** — everything is local bash scripts and markdown
-- **No learning or adaptation** — the rules are deterministic. Claude doesn't evolve them; humans do, via PREFECT-FEEDBACK.md
+- **No learning or adaptation** — the rules are deterministic. Claude doesn't evolve them; humans do, via WARDEN-FEEDBACK.md
 
 ## Troubleshooting
 
@@ -415,7 +415,7 @@ Install jq:
 
 ### Audit shows false positives in venv or node_modules
 
-The v5 audit script excludes `venv/`, `.venv/`, `node_modules/`, `__pycache__/`, and other dependency directories automatically. If you see false positives, check you're running the v5+ version — look for `PRUNE_DIRS` near the top of `prefect-audit.sh`.
+The v5 audit script excludes `venv/`, `.venv/`, `node_modules/`, `__pycache__/`, and other dependency directories automatically. If you see false positives, check you're running the v5+ version — look for `PRUNE_DIRS` near the top of `warden-audit.sh`.
 
 ### "Permission denied" when Claude tries to edit a protected file
 
@@ -454,4 +454,4 @@ MIT — see LICENSE file.
 
 ---
 
-*Prefect Governance Framework v5.1 — Human-owned, AI-enforced.*# Prefect-AI-Governance-Framework
+*Warden Governance Framework v5.1 — Human-owned, AI-enforced.*# Warden-AI-Governance-Framework

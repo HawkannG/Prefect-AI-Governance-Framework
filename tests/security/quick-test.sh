@@ -18,7 +18,7 @@ echo "safe" > "$TEST_DIR/src/safe.md"
 # Test 1: Direct block works
 echo -n "✓ Direct CLAUDE.md edit blocked... "
 if echo '{"tool":"Edit","tool_input":{"file_path":"'$TEST_DIR'/CLAUDE.md"}}' | \
-   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1; then
+   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1; then
   echo "❌ FAILED (allowed)"
   exit 1
 else
@@ -29,7 +29,7 @@ fi
 echo -n "✓ Symlink attack blocked... "
 ln -s CLAUDE.md "$TEST_DIR/sneaky.md"
 if echo '{"tool":"Edit","tool_input":{"file_path":"'$TEST_DIR'/sneaky.md"}}' | \
-   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1; then
+   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1; then
   echo "❌ FAILED (symlink bypass works)"
   exit 1
 else
@@ -39,7 +39,7 @@ fi
 # Test 3: Path traversal blocked
 echo -n "✓ Path traversal blocked... "
 if echo '{"tool":"Edit","tool_input":{"file_path":"'$TEST_DIR'/src/../../etc/passwd"}}' | \
-   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1; then
+   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1; then
   echo "❌ FAILED (traversal works)"
   exit 1
 else
@@ -49,7 +49,7 @@ fi
 # Test 4: Safe file allowed
 echo -n "✓ Safe file allowed... "
 if echo '{"tool":"Edit","tool_input":{"file_path":"'$TEST_DIR'/src/safe.md"}}' | \
-   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1; then
+   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1; then
   echo "✅ PASS"
 else
   echo "❌ FAILED (blocked incorrectly)"
@@ -60,7 +60,7 @@ fi
 echo -n "✓ Exit code 1 for blocks... "
 set +e  # Temporarily disable exit-on-error to capture exit code
 echo '{"tool":"Edit","tool_input":{"file_path":"'$TEST_DIR'/CLAUDE.md"}}' | \
-  CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-guard.sh >/dev/null 2>&1
+  CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-guard.sh >/dev/null 2>&1
 EXIT_CODE=$?
 set -e  # Re-enable
 if [ $EXIT_CODE -eq 1 ]; then
@@ -73,7 +73,7 @@ fi
 # Test 6: Bash guard blocks protected files
 echo -n "✓ Bash guard blocks writes... "
 if echo '{"tool":"Bash","tool_input":{"command":"echo test > '$TEST_DIR'/CLAUDE.md"}}' | \
-   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/prefect-bash-guard.sh >/dev/null 2>&1; then
+   CLAUDE_PROJECT_DIR="$TEST_DIR" bash .claude/hooks/warden-bash-guard.sh >/dev/null 2>&1; then
   echo "❌ FAILED (bash bypass works)"
   exit 1
 else

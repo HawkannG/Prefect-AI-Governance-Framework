@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# run-tests.sh — Prefect Security Test Suite Runner
+# run-tests.sh — Warden Security Test Suite Runner
 # Runs all security tests and reports results
 # Usage: bash tests/run-tests.sh [--verbose]
 
@@ -106,7 +106,7 @@ check_prerequisites() {
   fi
 
   # Check hooks exist
-  local hooks=("prefect-guard.sh" "prefect-bash-guard.sh" "prefect-audit.sh" "prefect-post-check.sh" "prefect-session-end.sh")
+  local hooks=("warden-guard.sh" "warden-bash-guard.sh" "warden-audit.sh" "warden-post-check.sh" "warden-session-end.sh")
   for hook in "${hooks[@]}"; do
     if [ -f "$PROJECT_DIR/.claude/hooks/$hook" ]; then
       log_pass "Hook exists: $hook"
@@ -148,7 +148,7 @@ run_test_script() {
 
 # Main execution
 main() {
-  log_header "🔒 PREFECT SECURITY TEST SUITE"
+  log_header "🔒 WARDEN SECURITY TEST SUITE"
   echo "Project: $PROJECT_DIR"
   echo "Date: $(date '+%Y-%m-%d %H:%M:%S')"
 
