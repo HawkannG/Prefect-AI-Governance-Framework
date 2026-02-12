@@ -1,0 +1,43 @@
+name: Security Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-tests:
+    name: Run Security Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+    - name: Verify prerequisites
+      run: |
+        echo "Bash version: $(bash --version | head -1)"
+        echo "jq version: $(jq --version)"
+        echo "realpath available: $(command -v realpath && echo yes || echo no)"
+
+    - name: Make test scripts executable
+      run: chmod +x tests/*.sh
+
+    - name: Run comprehensive security test suite
+      run: bash tests/run-tests.sh
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          tests/*.log
+          .claude/audit.log
+        retention-days: 30

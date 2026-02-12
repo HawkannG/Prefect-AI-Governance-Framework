@@ -1,0 +1,50 @@
+name: Custom Security Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.sh'
+      - '.github/workflows/codeql.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.sh'
+  schedule:
+    # Run weekly on Mondays at 6am UTC
+    - cron: '0 6 * * 1'
+
+jobs:
+  security-patterns:
+    name: Bash Security Pattern Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Custom security checks
+      run: |
+        echo "Running custom security pattern checks..."
+
+        # Check for hardcoded secrets patterns
+        echo "Checking for potential secrets..."
+        ! grep -rE '(password|secret|key|token)\s*=\s*["\x27][^"\x27]{8,}' .claude/hooks/ tests/ || {
+          echo "WARNING: Potential hardcoded secrets found"
+          exit 1
+        }
+
+        # Check for unsafe bash patterns
+        echo "Checking for unsafe bash patterns..."
+        ! grep -rE '\$\(.*\$.*\)' .claude/hooks/ || {
+          echo "WARNING: Potentially unsafe command substitution nesting"
+        }
+
+        # Check for eval usage (dangerous)
+        echo "Checking for eval usage..."
+        ! grep -r 'eval ' .claude/hooks/ || {
+          echo "ERROR: 'eval' usage detected - security risk!"
+          exit 1
+        }
+
+        echo "✓ Custom security checks passed"
