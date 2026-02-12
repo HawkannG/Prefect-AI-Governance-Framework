@@ -41,7 +41,7 @@ Runs comprehensive security validation on every push and pull request.
 Add to README.md:
 
 ```markdown
-[![Security Tests](https://github.com/HawkannG/Prefect-AI-Governance-Framework/actions/workflows/security-tests.yml/badge.svg)](https://github.com/HawkannG/Prefect-AI-Governance-Framework/actions/workflows/security-tests.yml)
+[![Security Tests](https://github.com/HawkannG/Claude-Warden/actions/workflows/security-tests.yml/badge.svg)](https://github.com/HawkannG/Claude-Warden/actions/workflows/security-tests.yml)
 ```
 
 ### Local Testing
